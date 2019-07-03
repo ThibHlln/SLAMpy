@@ -1,5 +1,6 @@
 # all
 *.pyc
+*.xml
 
 # macOS
 .DS_Store
