@@ -34,13 +34,6 @@ class CCTv2(object):
             direction="Input")
         selection.parameterDependencies = [region.name]
 
-        selected_subregion = arcpy.Parameter(
-            displayName="Output for Selection (required if 'Selection' is requested)",
-            name="selected_subregion",
-            datatype="DEFeatureClass",
-            parameterType="Optional",
-            direction="Output")
-
         in_arable = arcpy.Parameter(
             displayName="CCT Data for Arable",
             name="in_arable",
@@ -69,7 +62,7 @@ class CCTv2(object):
             parameterType="Required",
             direction="Output")
 
-        return [nutrient, region, selection, selected_subregion, in_arable, in_pasture, out_arable, out_pasture]
+        return [nutrient, region, selection, in_arable, in_pasture, out_arable, out_pasture]
 
     def execute(self, parameters, messages):
         """
@@ -77,43 +70,34 @@ class CCTv2(object):
            [0] nutrient of interest [type: str] {possible values: 'Nitrogen (N)' or 'Nitrogen (P)'}
            [1] path of the feature class for the region of interest [type: str] {required}
            [2] SQL query to select specific location(s) within region [type: str] {optional}
-           [3] path of the output feature class for the selection of the specific location(s) [type: str] {optional}
-           [4] path of the input feature class of the CCT data for arable [type: str] {required}
-           [5] path of the input feature class of the CCT data for pasture [type: str] {required}
-           [6] path of the output feature class for arable nutrient load [type: str] {required}
-           [7] path of the output feature class for pasture nutrient load [type: str] {required}
+           [3] path of the input feature class of the CCT data for arable [type: str] {required}
+           [4] path of the input feature class of the CCT data for pasture [type: str] {required}
+           [5] path of the output feature class for arable nutrient load [type: str] {required}
+           [6] path of the output feature class for pasture nutrient load [type: str] {required}
         :param messages: Messages object provided by ArcPy when running the tool
 
         N.B. If the optional parameters are not used, they must be set to None.
         """
 
+        # retrieve parameters
+        nutrient, region, selection, in_arable, in_pasture, out_arable, out_pasture = \
+            [p.valueAsText for p in parameters]
+
         # determine which nutrient to work on
-        nutrient = 'N' if parameters[0].valueAsText == 'Nitrogen (N)' else 'P'
+        nutrient = 'N' if nutrient == 'Nitrogen (N)' else 'P'
 
         # determine which location to work on
-        region = parameters[1].valueAsText
-        selection = parameters[2].valueAsText
-        selected_subregion = parameters[3].valueAsText
-
+        arcpy.MakeFeatureLayer_management(region, 'lyrLocation')
         if selection:  # i.e. selection requested
-            if selected_subregion:  # i.e. output for selection provided
-                messages.addMessage("Selecting requested Location(s) within Region")
-                arcpy.Select_analysis(region, selected_subregion, selection)
-                location = selected_subregion
-            else:
-                raise Exception("The parameter \'Selection within Region\' is provided but "
-                                "the parameter \'Output for Selection\' is not.")
-        else:
-            location = region
+            messages.addMessage("Selecting requested Location(s) within Region")
+            arcpy.SelectLayerByAttribute_management('lyrLocation', "NEW_SELECTION", selection)
 
         # calculate load for arable
         messages.addMessage("Calculating {} load for arable.".format(nutrient))
 
-        in_arable = parameters[4].valueAsText
-        out_arable = parameters[6].valueAsText
-
-        arcpy.Intersect_analysis([location, in_arable], out_arable,
+        arcpy.Intersect_analysis(['lyrLocation', in_arable], out_arable,
                                  join_attributes="ALL", output_type="INPUT")
+
         arcpy.AddField_management(out_arable, "Area_ha", "DOUBLE",
                                   field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
         arcpy.CalculateField_management(out_arable, "Area_ha", "!shape.area@hectares!",
@@ -134,10 +118,7 @@ class CCTv2(object):
         # calculate load for pasture
         messages.addMessage("Calculating {} load for pasture.".format(nutrient))
 
-        in_pasture = parameters[5].valueAsText
-        out_pasture = parameters[7].valueAsText
-
-        arcpy.Intersect_analysis([location, in_pasture], out_pasture,
+        arcpy.Intersect_analysis(['lyrLocation', in_pasture], out_pasture,
                                  join_attributes="ALL", output_type="INPUT")
 
         arcpy.AddField_management(out_pasture, "Area_ha", "DOUBLE",
