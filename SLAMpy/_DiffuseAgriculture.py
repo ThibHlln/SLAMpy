@@ -21,7 +21,7 @@ class CCTv2(object):
 
         region = arcpy.Parameter(
             displayName="Region of Interest",
-            name="outline",
+            name="region",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input")
@@ -36,7 +36,7 @@ class CCTv2(object):
 
         selected_subregion = arcpy.Parameter(
             displayName="Output for Selection (required if 'Selection' is requested)",
-            name="selected_outline",
+            name="selected_subregion",
             datatype="DEFeatureClass",
             parameterType="Optional",
             direction="Output")
