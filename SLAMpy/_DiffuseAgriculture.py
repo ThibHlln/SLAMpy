@@ -69,11 +69,7 @@ class CCTv2(object):
             parameterType="Required",
             direction="Output")
 
-        params = [
-            nutrient, outline, selection, selected_outline, in_arable, in_pasture, out_arable, out_pasture
-        ]
-
-        return params
+        return [nutrient, outline, selection, selected_outline, in_arable, in_pasture, out_arable, out_pasture]
 
     def execute(self, parameters, messages):
         """
