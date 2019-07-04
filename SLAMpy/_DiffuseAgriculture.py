@@ -5,8 +5,8 @@ class CCTv2(object):
     def __init__(self):
         self.__version__ = '2'
         self.category = 'Sources'
-        self.label = 'CCT [v{}]'.format(self.__version__)
-        self.description = "Catchment Characterisation Tool."
+        self.label = 'Agriculture [v{}]'.format(self.__version__)
+        self.description = "Diffuse nutrient sources from pasture and arable fields (based on CCT model)."
         self.canRunInBackground = False
 
     def getParameterInfo(self):
