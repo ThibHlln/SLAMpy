@@ -10,59 +10,59 @@ class CCTv2(object):
         self.canRunInBackground = False
 
     def getParameterInfo(self):
-        p_nutrient = arcpy.Parameter(
+        nutrient = arcpy.Parameter(
             displayName="Nutrient of Interest",
             name="nutrient",
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        p_nutrient.filter.type = "ValueList"
-        p_nutrient.filter.list = ['Nitrogen (N)', 'Phosphorus (P)']
+        nutrient.filter.type = "ValueList"
+        nutrient.filter.list = ['Nitrogen (N)', 'Phosphorus (P)']
 
-        p_outline = arcpy.Parameter(
+        outline = arcpy.Parameter(
             displayName="Region of Interest",
             name="outline",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input")
 
-        p_selection = arcpy.Parameter(
+        selection = arcpy.Parameter(
             displayName="Selection within Region",
             name="selection",
             datatype="GPSQLExpression",
             parameterType="Optional",
             direction="Input")
-        p_selection.parameterDependencies = [p_outline.name]
+        selection.parameterDependencies = [outline.name]
 
-        p_selected_outline = arcpy.Parameter(
+        selected_outline = arcpy.Parameter(
             displayName="Output for Selection (required if 'Selection' is requested)",
             name="selected_outline",
             datatype="DEFeatureClass",
             parameterType="Optional",
             direction="Output")
 
-        p_in_arable = arcpy.Parameter(
+        in_arable = arcpy.Parameter(
             displayName="CCT Data for Arable",
             name="in_arable",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input")
 
-        p_in_pasture = arcpy.Parameter(
+        in_pasture = arcpy.Parameter(
             displayName="CCT Data for Pasture",
             name="in_pasture",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input")
 
-        p_out_arable = arcpy.Parameter(
+        out_arable = arcpy.Parameter(
             displayName="Output for Arable",
             name="out_arable",
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Output")
 
-        p_out_pasture = arcpy.Parameter(
+        out_pasture = arcpy.Parameter(
             displayName="Output for Pasture",
             name="out_pasture",
             datatype="DEFeatureClass",
@@ -70,8 +70,7 @@ class CCTv2(object):
             direction="Output")
 
         params = [
-            p_nutrient, p_outline, p_selection, p_selected_outline,
-            p_in_arable, p_in_pasture, p_out_arable, p_out_pasture
+            nutrient, outline, selection, selected_outline, in_arable, in_pasture, out_arable, out_pasture
         ]
 
         return params
