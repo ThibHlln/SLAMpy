@@ -1,3 +1,4 @@
+from os import path, sep
 import arcpy
 
 
@@ -10,6 +11,41 @@ class CCTv2(object):
         self.canRunInBackground = False
 
     def getParameterInfo(self):
+        # Define Workspace
+        root = path.dirname(path.dirname(path.realpath(__file__)))
+        arcpy.env.workspace = root
+
+        # Parameters for Folders Options
+        in_gdb = sep.join([root, 'in', 'input.gdb'])
+
+        in_fld = sep.join([root, 'in'])
+
+        out_gdb = arcpy.Parameter(
+            displayName="Output Geodatabase",
+            name="out_gdb",
+            datatype="DEWorkspace",
+            parameterType="Required",
+            direction="Input",
+            category='Folders Options')
+        out_gdb.value = sep.join([root, 'out', 'output.gdb'])
+
+        out_fld = arcpy.Parameter(
+            displayName="Output Folder",
+            name="out_fld",
+            datatype="DEWorkspace",
+            parameterType="Required",
+            direction="Input",
+            category='Folders Options')
+        out_fld.value = sep.join([root, 'out'])
+
+        # Parameters Common to All Sources
+        project_name = arcpy.Parameter(
+            displayName="Name of the Project",
+            name="project_name",
+            datatype="GPString",
+            parameterType="Required",
+            direction="Input")
+
         nutrient = arcpy.Parameter(
             displayName="Nutrient of Interest",
             name="nutrient",
@@ -34,63 +70,62 @@ class CCTv2(object):
             direction="Input")
         selection.parameterDependencies = [region.name]
 
+        # Parameters specific to Diffuse Agriculture
         in_arable = arcpy.Parameter(
             displayName="CCT Data for Arable",
             name="in_arable",
             datatype="DEFeatureClass",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+            category="Diffuse Agriculture Data Options")
+        in_arable.value = sep.join([in_gdb, 'CCT_Arable'])
 
         in_pasture = arcpy.Parameter(
             displayName="CCT Data for Pasture",
             name="in_pasture",
             datatype="DEFeatureClass",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+            category="Diffuse Agriculture Data Options")
+        in_pasture.value = sep.join([in_gdb, 'CCT_Pasture'])
 
-        out_arable = arcpy.Parameter(
-            displayName="Output for Arable",
-            name="out_arable",
-            datatype="DEFeatureClass",
-            parameterType="Required",
-            direction="Output")
-
-        out_pasture = arcpy.Parameter(
-            displayName="Output for Pasture",
-            name="out_pasture",
-            datatype="DEFeatureClass",
-            parameterType="Required",
-            direction="Output")
-
-        return [nutrient, region, selection, in_arable, in_pasture, out_arable, out_pasture]
+        return [out_gdb, out_fld,
+                project_name, nutrient, region, selection,
+                in_arable, in_pasture]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        nutrient, region, selection, in_arable, in_pasture, out_arable, out_pasture = \
+        out_gdb, out_fld, project_name, nutrient, region, selection, in_arable, in_pasture = \
             [p.valueAsText for p in parameters]
 
         # run geoprocessing function
-        cct_v2_geoprocessing(nutrient, region, selection, in_arable, in_pasture, out_arable, out_pasture, messages)
+        cct_v2_geoprocessing(project_name, nutrient, region, selection, in_arable, in_pasture, out_gdb, messages)
 
 
-def cct_v2_geoprocessing(nutrient, region, selection, in_arable, in_pasture, out_arable, out_pasture, messages):
+def cct_v2_geoprocessing(project_name, nutrient, region, selection, in_arable, in_pasture, out_gdb, messages,
+                         out_arable=None, out_pasture=None):
     """
+    :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
+    :type project_name: str
     :param nutrient: nutrient of interest {possible values: 'Nitrogen (N)' or 'Nitrogen (P)'} [required]
     :type nutrient: str
     :param region: path of the feature class for the region of interest [required]
     :type region: str
-    :param selection: SQL query to select specific location(s) within region [optional]
+    :param selection: SQL query to select specific location(s) within region [required] {set to None if unused}
     :type selection: str
     :param in_arable: path of the input feature class of the CCT data for arable [required]
     :type in_arable: str
     :param in_pasture: path of the input feature class of the CCT data for pasture [required]
     :type in_pasture: str
-    :param out_arable: path of the output feature class for arable nutrient load [required]
-    :type out_arable: str
-    :param out_pasture: path of the output feature class for pasture nutrient load [required]
-    :type out_pasture: str
+    :param out_gdb: path of the geodatabase where to store the output feature classes [required]
+    :type out_gdb: str
     :param messages: object used for communication with the user interface [required]
     :type messages: instance of a class featuring a 'addMessage' method
+    :param out_arable: path of the output feature class for arable nutrient load [optional]
+    :type out_arable: str
+    :param out_pasture: path of the output feature class for pasture nutrient load [optional]
+    :type out_pasture: str
+
 
     N.B. If the optional parameters are not used, they must be set to None.
     """
@@ -105,6 +140,9 @@ def cct_v2_geoprocessing(nutrient, region, selection, in_arable, in_pasture, out
 
     # calculate load for arable
     messages.addMessage("Calculating {} load for arable.".format(nutrient))
+
+    if not out_arable:
+        out_arable = sep.join([out_gdb, project_name + '_{}_Arable'.format(nutrient)])
 
     arcpy.Intersect_analysis(['lyrLocation', in_arable], out_arable,
                              join_attributes="ALL", output_type="INPUT")
@@ -128,6 +166,9 @@ def cct_v2_geoprocessing(nutrient, region, selection, in_arable, in_pasture, out
 
     # calculate load for pasture
     messages.addMessage("Calculating {} load for pasture.".format(nutrient))
+
+    if not out_pasture:
+        out_pasture = sep.join([out_gdb, project_name + '_{}_Pasture'.format(nutrient)])
 
     arcpy.Intersect_analysis(['lyrLocation', in_pasture], out_pasture,
                              join_attributes="ALL", output_type="INPUT")
