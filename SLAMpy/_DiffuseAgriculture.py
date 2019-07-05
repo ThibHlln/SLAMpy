@@ -133,10 +133,12 @@ def cct_v2_geoprocessing(project_name, nutrient, region, selection, in_arable, i
     nutrient = 'N' if nutrient == 'Nitrogen (N)' else 'P'
 
     # determine which location to work on
-    arcpy.MakeFeatureLayer_management(region, 'lyrLocation')
     if selection:  # i.e. selection requested
         messages.addMessage("Selecting requested Location(s) within Region")
-        arcpy.SelectLayerByAttribute_management('lyrLocation', "NEW_SELECTION", selection)
+        location = sep.join([out_gdb, project_name + '_SelectedRegion'])
+        arcpy.Select_analysis(region, location, selection)
+    else:
+        location = region
 
     # calculate load for arable
     messages.addMessage("Calculating {} load for arable.".format(nutrient))
@@ -144,7 +146,7 @@ def cct_v2_geoprocessing(project_name, nutrient, region, selection, in_arable, i
     if not out_arable:
         out_arable = sep.join([out_gdb, project_name + '_{}_Arable'.format(nutrient)])
 
-    arcpy.Intersect_analysis(['lyrLocation', in_arable], out_arable,
+    arcpy.Intersect_analysis([location, in_arable], out_arable,
                              join_attributes="ALL", output_type="INPUT")
 
     arcpy.AddField_management(out_arable, "Area_ha", "DOUBLE",
@@ -170,7 +172,7 @@ def cct_v2_geoprocessing(project_name, nutrient, region, selection, in_arable, i
     if not out_pasture:
         out_pasture = sep.join([out_gdb, project_name + '_{}_Pasture'.format(nutrient)])
 
-    arcpy.Intersect_analysis(['lyrLocation', in_pasture], out_pasture,
+    arcpy.Intersect_analysis([location, in_pasture], out_pasture,
                              join_attributes="ALL", output_type="INPUT")
 
     arcpy.AddField_management(out_pasture, "Area_ha", "DOUBLE",
