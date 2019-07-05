@@ -2,5 +2,8 @@
 *.pyc
 *.xml
 
+in/
+out/
+
 # macOS
 .DS_Store
