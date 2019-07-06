@@ -26,7 +26,7 @@ class UrbanV1(object):
             datatype="DEWorkspace",
             parameterType="Required",
             direction="Input",
-            category='Folders Options')
+            category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
         out_fld = arcpy.Parameter(
@@ -35,7 +35,7 @@ class UrbanV1(object):
             datatype="DEWorkspace",
             parameterType="Required",
             direction="Input",
-            category='Folders Options')
+            category='# Folders Settings')
         out_fld.value = sep.join([root, 'out'])
 
         # Parameters Common to All Sources
@@ -77,7 +77,7 @@ class UrbanV1(object):
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input",
-            category="Urban Data Options")
+            category="Urban Data Settings")
         in_urban.value = sep.join([in_gdb, 'CorineLandCover_2012'])
 
         in_factors_n = arcpy.Parameter(
@@ -86,7 +86,7 @@ class UrbanV1(object):
             datatype="DETable",
             parameterType="Required",
             direction="Input",
-            category="Urban Data Options")
+            category="Urban Data Settings")
         in_factors_n.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Corine_N$'])
 
         in_factors_p = arcpy.Parameter(
@@ -95,7 +95,7 @@ class UrbanV1(object):
             datatype="DETable",
             parameterType="Required",
             direction="Input",
-            category="Urban Data Options")
+            category="Urban Data Settings")
         in_factors_p.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Corine_P$'])
 
         return [out_gdb, out_fld,

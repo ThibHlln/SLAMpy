@@ -26,7 +26,7 @@ class DWTSv2(object):
             datatype="DEWorkspace",
             parameterType="Required",
             direction="Input",
-            category='# Folders Options')
+            category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
         out_fld = arcpy.Parameter(
@@ -35,7 +35,7 @@ class DWTSv2(object):
             datatype="DEWorkspace",
             parameterType="Required",
             direction="Input",
-            category='# Folders Options')
+            category='# Folders Settings')
         out_fld.value = sep.join([root, 'out'])
 
         # Parameters Common to All Sources
@@ -77,7 +77,7 @@ class DWTSv2(object):
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input",
-            category="Septic Tanks Data Options")
+            category="Septic Tanks Data Settings")
         in_dwts.value = sep.join([in_gdb, 'SepticTanks_Discharge'])
 
         return [out_gdb, out_fld,

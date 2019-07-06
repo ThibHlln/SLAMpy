@@ -26,7 +26,7 @@ class IndustryV2(object):
             datatype="DEWorkspace",
             parameterType="Required",
             direction="Input",
-            category='Folders Options')
+            category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
         out_fld = arcpy.Parameter(
@@ -35,7 +35,7 @@ class IndustryV2(object):
             datatype="DEWorkspace",
             parameterType="Required",
             direction="Input",
-            category='Folders Options')
+            category='# Folders Settings')
         out_fld.value = sep.join([root, 'out'])
 
         # Parameters Common to All Sources
@@ -77,7 +77,7 @@ class IndustryV2(object):
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input",
-            category="Industry Data Options")
+            category="Industry Data Settings")
         in_ipc.value = sep.join([in_gdb, 'IPPC_Discharge'])
 
         in_sect4 = arcpy.Parameter(
@@ -86,7 +86,7 @@ class IndustryV2(object):
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input",
-            category="Industry Data Options")
+            category="Industry Data Settings")
         in_sect4.value = sep.join([in_gdb, 'Sect4_Discharge'])
 
         return [out_gdb, out_fld,

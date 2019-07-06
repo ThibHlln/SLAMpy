@@ -26,7 +26,7 @@ class CCTv2(object):
             datatype="DEWorkspace",
             parameterType="Required",
             direction="Input",
-            category='Folders Options')
+            category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
         out_fld = arcpy.Parameter(
@@ -35,7 +35,7 @@ class CCTv2(object):
             datatype="DEWorkspace",
             parameterType="Required",
             direction="Input",
-            category='Folders Options')
+            category='# Folders Settings')
         out_fld.value = sep.join([root, 'out'])
 
         # Parameters Common to All Sources
@@ -77,7 +77,7 @@ class CCTv2(object):
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input",
-            category="Diffuse Agriculture Data Options")
+            category="Diffuse Agriculture Data Settings")
         in_arable.value = sep.join([in_gdb, 'CCT_Arable'])
 
         in_pasture = arcpy.Parameter(
@@ -86,7 +86,7 @@ class CCTv2(object):
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input",
-            category="Diffuse Agriculture Data Options")
+            category="Diffuse Agriculture Data Settings")
         in_pasture.value = sep.join([in_gdb, 'CCT_Pasture'])
 
         return [out_gdb, out_fld,
