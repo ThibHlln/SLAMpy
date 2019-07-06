@@ -76,7 +76,8 @@ class PeatV1(object):
             name="in_peat",
             datatype="DEFeatureClass",
             parameterType="Required",
-            direction="Input")
+            direction="Input",
+            category="Peat Data Options")
         in_peat.value = sep.join([in_gdb, 'CorineLandCover_2012'])
 
         in_factors_n = arcpy.Parameter(
@@ -85,7 +86,7 @@ class PeatV1(object):
             datatype="DETable",
             parameterType="Required",
             direction="Input",
-            category="Forestry Data Options")
+            category="Peat Data Options")
         in_factors_n.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Corine_N$'])
 
         in_factors_p = arcpy.Parameter(
@@ -94,7 +95,7 @@ class PeatV1(object):
             datatype="DETable",
             parameterType="Required",
             direction="Input",
-            category="Forestry Data Options")
+            category="Peat Data Options")
         in_factors_p.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Corine_P$'])
 
         return [out_gdb, out_fld,
