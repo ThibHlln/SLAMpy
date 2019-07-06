@@ -134,9 +134,6 @@ def cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture
     :type out_arable: str
     :param out_pasture: path of the output feature class for pasture nutrient load [optional]
     :type out_pasture: str
-
-
-    N.B. If the optional parameters are not used, they must be set to None.
     """
     # calculate load for arable
     messages.addMessage("> Calculating {} load for arable.".format(nutrient))
