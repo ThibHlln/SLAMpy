@@ -98,21 +98,30 @@ class CCTv2(object):
         out_gdb, out_fld, project_name, nutrient, region, selection, in_arable, in_pasture = \
             [p.valueAsText for p in parameters]
 
+        # determine which nutrient to work on
+        nutrient = 'N' if nutrient == 'Nitrogen (N)' else 'P'
+
+        # determine which location to work on
+        if selection:  # i.e. selection requested
+            messages.addMessage("> Selecting requested Location(s) within Region:")
+            location = sep.join([out_gdb, project_name + '_SelectedRegion'])
+            arcpy.Select_analysis(region, location, selection)
+        else:
+            location = region
+
         # run geoprocessing function
-        cct_v2_geoprocessing(project_name, nutrient, region, selection, in_arable, in_pasture, out_gdb, messages)
+        cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
 
 
-def cct_v2_geoprocessing(project_name, nutrient, region, selection, in_arable, in_pasture, out_gdb, messages,
+def cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages,
                          out_arable=None, out_pasture=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str
-    :param nutrient: nutrient of interest {possible values: 'Nitrogen (N)' or 'Nitrogen (P)'} [required]
+    :param nutrient: nutrient of interest {possible values: 'N' or 'P'} [required]
     :type nutrient: str
-    :param region: path of the feature class for the region of interest [required]
-    :type region: str
-    :param selection: SQL query to select specific location(s) within region [required] {set to None if unused}
-    :type selection: str
+    :param location: path of the feature class for the location of interest [required]
+    :type location: str
     :param in_arable: path of the input feature class of the CCT data for arable [required]
     :type in_arable: str
     :param in_pasture: path of the input feature class of the CCT data for pasture [required]
@@ -129,19 +138,8 @@ def cct_v2_geoprocessing(project_name, nutrient, region, selection, in_arable, i
 
     N.B. If the optional parameters are not used, they must be set to None.
     """
-    # determine which nutrient to work on
-    nutrient = 'N' if nutrient == 'Nitrogen (N)' else 'P'
-
-    # determine which location to work on
-    if selection:  # i.e. selection requested
-        messages.addMessage("Selecting requested Location(s) within Region")
-        location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-        arcpy.Select_analysis(region, location, selection)
-    else:
-        location = region
-
     # calculate load for arable
-    messages.addMessage("Calculating {} load for arable.".format(nutrient))
+    messages.addMessage("> Calculating {} load for arable.".format(nutrient))
 
     if not out_arable:
         out_arable = sep.join([out_gdb, project_name + '_{}_Arable'.format(nutrient)])
@@ -167,7 +165,7 @@ def cct_v2_geoprocessing(project_name, nutrient, region, selection, in_arable, i
                                     expression_type="PYTHON_9.3")
 
     # calculate load for pasture
-    messages.addMessage("Calculating {} load for pasture.".format(nutrient))
+    messages.addMessage("> Calculating {} load for pasture.".format(nutrient))
 
     if not out_pasture:
         out_pasture = sep.join([out_gdb, project_name + '_{}_Pasture'.format(nutrient)])
