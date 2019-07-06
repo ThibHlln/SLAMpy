@@ -122,11 +122,11 @@ class PeatV1(object):
         in_factors = in_factors_n if nutrient == 'N' else in_factors_p
 
         # run geoprocessing function
-        peat_v1_geopreocessing(project_name, nutrient, location, in_peat, in_factors, out_gdb, messages)
+        peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors, out_gdb, messages)
 
 
-def peat_v1_geopreocessing(project_name, nutrient, location, in_peat, in_factors, out_gdb, messages,
-                           out_peat=None):
+def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors, out_gdb, messages,
+                          out_peat=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str
