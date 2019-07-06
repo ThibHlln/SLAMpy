@@ -94,7 +94,7 @@ class AtmosV2(object):
 
         # determine which location to work on
         if selection:  # i.e. selection requested
-            messages.addMessage("> Selecting requested Location(s) within Region:")
+            messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
             arcpy.Select_analysis(region, location, selection)
         else:
