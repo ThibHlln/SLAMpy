@@ -186,3 +186,5 @@ def cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture
     arcpy.CalculateField_management(out_pasture, "Past2CCT",
                                     "!{}TotaltoSWreceptor! * !Area_ha!".format(nutrient.lower()),
                                     expression_type="PYTHON_9.3")
+
+    return out_arable, out_pasture

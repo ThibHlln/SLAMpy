@@ -147,3 +147,5 @@ def atmos_v2_geoprocessing(project_name, nutrient, location, in_atm_depo, out_gd
     arcpy.CalculateField_management(out_atm_depo, "Atmos2Calc",
                                     "!AtmosRate! * !Area_ha!".format(nutrient),
                                     expression_type="PYTHON_9.3")
+
+    return out_atm_depo

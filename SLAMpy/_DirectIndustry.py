@@ -190,3 +190,5 @@ def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4
     arcpy.CalculateField_management(out_sect4, "Sect4_Load",
                                     expression="!Sect4_ELV! * 0.25 * !Sect4_Flow! * 0.365",
                                     expression_type="PYTHON_9.3")
+
+    return out_ipc, out_sect4

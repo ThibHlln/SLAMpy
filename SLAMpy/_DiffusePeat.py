@@ -188,3 +188,5 @@ def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors,
                                         else:
                                             return 0.0
                                     """.format(c411, c412))
+
+    return out_peat

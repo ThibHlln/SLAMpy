@@ -193,3 +193,5 @@ def forestry_v1_geoprocessing(project_name, nutrient, location, in_forest, in_fa
                                         else:
                                             return 0.0
                                     """.format(c311, c312, c313, c324))
+
+    return out_forest

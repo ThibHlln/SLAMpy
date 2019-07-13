@@ -142,3 +142,5 @@ def ww_2015_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, m
     arcpy.CalculateField_management(out_agglo, "Agglom2015",
                                     "!PointT{}!".format(nutrient),
                                     expression_type="PYTHON_9.3")
+
+    return out_agglo

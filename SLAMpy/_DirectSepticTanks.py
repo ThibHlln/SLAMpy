@@ -142,3 +142,5 @@ def dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, me
     arcpy.CalculateField_management(out_dwts, "DWTS",
                                     "!Total_{}_2c!".format(nutrient),
                                     expression_type="PYTHON_9.3")
+
+    return out_dwts
