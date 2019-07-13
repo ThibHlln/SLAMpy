@@ -75,7 +75,7 @@ class WasteWater2015(object):
             direction="Input")
         selection.parameterDependencies = [region.name]
 
-        # Parameters specific to Septic Tanks
+        # Parameters specific to Wastewater Treatment Plants
         in_agglo = arcpy.Parameter(
             displayName="Agglomerations Discharges Data",
             name="in_agglo",
