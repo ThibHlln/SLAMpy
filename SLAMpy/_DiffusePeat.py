@@ -124,6 +124,10 @@ class PeatV1(object):
         # run geoprocessing function
         peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors, out_gdb, messages)
 
+        # garbage collection
+        if selection:
+            arcpy.Delete_management(location)
+
 
 def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors, out_gdb, messages,
                           out_peat=None):

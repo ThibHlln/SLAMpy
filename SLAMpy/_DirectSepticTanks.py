@@ -103,6 +103,10 @@ class DWTSv2(object):
         # run geoprocessing function
         dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
 
+        # garbage collection
+        if selection:
+            arcpy.Delete_management(location)
+
 
 def dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages,
                           out_dwts=None):

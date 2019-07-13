@@ -103,6 +103,10 @@ class AtmosV2(object):
         # run geoprocessing function
         atmos_v2_geoprocessing(project_name, nutrient, location, in_atm_depo, out_gdb, messages)
 
+        # garbage collection
+        if selection:
+            arcpy.Delete_management(location)
+
 
 def atmos_v2_geoprocessing(project_name, nutrient, location, in_atm_depo, out_gdb, messages,
                            out_atm_depo=None):

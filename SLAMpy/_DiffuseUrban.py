@@ -124,6 +124,10 @@ class UrbanV1(object):
         # run geoprocessing function
         urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_factors, out_gdb, messages)
 
+        # garbage collection
+        if selection:
+            arcpy.Delete_management(location)
+
 
 def urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_factors, out_gdb, messages,
                            out_urban=None):

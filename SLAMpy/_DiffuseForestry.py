@@ -124,6 +124,10 @@ class ForestryV1(object):
         # run geoprocessing function
         forestry_v1_geoprocessing(project_name, nutrient, location, in_forest, in_factors, out_gdb, messages)
 
+        # garbage collection
+        if selection:
+            arcpy.Delete_management(location)
+
 
 def forestry_v1_geoprocessing(project_name, nutrient, location, in_forest, in_factors, out_gdb, messages,
                               out_forest=None):

@@ -108,6 +108,10 @@ class WasteWater2015(object):
         # run geoprocessing function
         ww_2015_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
 
+        # garbage collection
+        if selection:
+            arcpy.Delete_management(location)
+
 
 def ww_2015_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages,
                           out_agglo=None):

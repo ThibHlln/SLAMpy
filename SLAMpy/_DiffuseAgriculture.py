@@ -112,6 +112,10 @@ class CCTv2(object):
         # run geoprocessing function
         cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
 
+        # garbage collection
+        if selection:
+            arcpy.Delete_management(location)
+
 
 def cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages,
                          out_arable=None, out_pasture=None):

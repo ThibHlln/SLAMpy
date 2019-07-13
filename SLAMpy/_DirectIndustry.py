@@ -112,6 +112,10 @@ class IndustryV2(object):
         # run geoprocessing function
         industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4, out_gdb, messages)
 
+        # garbage collection
+        if selection:
+            arcpy.Delete_management(location)
+
 
 def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4, out_gdb, messages,
                               out_ipc=None, out_sect4=None):
