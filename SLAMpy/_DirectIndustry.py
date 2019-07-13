@@ -166,28 +166,31 @@ def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4
     arcpy.AddField_management(out_sect4, "Sect4_Flow", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(out_sect4, "Sect4_Flow",
-                                    expression="flow",
+                                    expression="flow(float(!Flow__m3_d!), float(!Discharge_!))",
                                     expression_type="PYTHON_9.3",
-                                    code_block="""
-                                            if !Flow__m3_d! > 0:
-                                                flow = !Flow__m3_d! 
-                                            else:
-                                                flow = !Discharge_!
-                                        """)
+                                    code_block=
+                                    """def flow(flow_m3_d, discharge):
+                                    if flow_m3_d > 0:
+                                        return flow_m3_d
+                                    else:
+                                        return discharge
+                                    """)
 
     arcpy.AddField_management(out_sect4, "Sect4_ELV", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(out_sect4, "Sect4_ELV",
-                                    expression="elv",
+                                    expression="elv(float(!TON_ELV!), float(!TN_ELV!), float(!NO3_ELV!), "
+                                               "float(!NH3_ELV!), float(!NH4_ELV!), float(!NO2_ELV!), "
+                                               "float(!TP_ELV!), float(!PO4_ELV!))",
                                     expression_type="PYTHON_9.3",
-                                    code_block="""
-                                            nutrient = '{}'
-                                            if nutrient == 'N':
-                                                elv = float(max([!TON_ELV!, !TN_ELV!, !NO3_ELV!, 
-                                                                 !NH3_ELV!, !NH4_ELV!, !NO2_ELV!]))
-                                            else:
-                                                elv = float(max([!TP_ELV!, !PO4_ELV!]))
-                                        """.format(nutrient))
+                                    code_block=
+                                    """def elv(ton, tn, no3, nh3, nh4, no2, tp, po4):
+                                    nutrient = '{}'
+                                    if nutrient == 'N':
+                                        return float(max([ton, tn, no3, nh3, nh4, no2]))
+                                    else:
+                                        return float(max([tp, po4]))
+                                    """.format(nutrient))
 
     arcpy.AddField_management(out_sect4, "Sect4_Load", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
