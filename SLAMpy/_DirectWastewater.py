@@ -141,6 +141,12 @@ def ww_2015_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, m
                                join_operation="JOIN_ONE_TO_ONE", join_type="KEEP_COMMON",
                                match_option='CLOSEST', search_radius='2000 Meters')
 
+    arcpy.AddField_management(out_agglo, "CSO15", "DOUBLE",
+                              field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
+    arcpy.CalculateField_management(out_agglo, "CSO15",
+                                    "!T{}_SWO!".format(nutrient),
+                                    expression_type="PYTHON_9.3")
+
     arcpy.AddField_management(out_agglo, "Agglom2015", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(out_agglo, "Agglom2015",
