@@ -78,7 +78,7 @@ class DWTSv2(object):
             parameterType="Required",
             direction="Input",
             category="Septic Tanks Data Settings")
-        in_dwts.value = sep.join([in_gdb, 'SepticTanks_Discharge'])
+        in_dwts.value = sep.join([in_gdb, 'SepticTankSystems_LoadModel17'])
 
         return [out_gdb, out_fld,
                 project_name, nutrient, region, selection,

@@ -78,7 +78,7 @@ class CCTv2(object):
             parameterType="Required",
             direction="Input",
             category="Diffuse Agriculture Data Settings")
-        in_arable.value = sep.join([in_gdb, 'CCT_Arable'])
+        in_arable.value = sep.join([in_gdb, 'PathwaysCCT_IRL_Arable_LPIS'])
 
         in_pasture = arcpy.Parameter(
             displayName="CCT Data for Pasture",
@@ -87,7 +87,7 @@ class CCTv2(object):
             parameterType="Required",
             direction="Input",
             category="Diffuse Agriculture Data Settings")
-        in_pasture.value = sep.join([in_gdb, 'CCT_Pasture'])
+        in_pasture.value = sep.join([in_gdb, 'PathwaysCCT_IRL_Pasture_LPIS'])
 
         return [out_gdb, out_fld,
                 project_name, nutrient, region, selection,

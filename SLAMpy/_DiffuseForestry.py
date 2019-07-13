@@ -78,7 +78,7 @@ class ForestryV1(object):
             parameterType="Required",
             direction="Input",
             category="Forestry Data Settings")
-        in_forest.value = sep.join([in_gdb, 'CorineLandCover_2012'])
+        in_forest.value = sep.join([in_gdb, 'clc12_IE'])
 
         in_factors_n = arcpy.Parameter(
             displayName="Land Cover Factors for Nitrogen (N)",

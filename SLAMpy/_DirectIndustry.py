@@ -78,7 +78,7 @@ class IndustryV2(object):
             parameterType="Required",
             direction="Input",
             category="Industry Data Settings")
-        in_ipc.value = sep.join([in_gdb, 'IPPC_Discharge'])
+        in_ipc.value = sep.join([in_gdb, 'IPPC_Loads_LAM2'])
 
         in_sect4 = arcpy.Parameter(
             displayName="Section 4 Licences Data",
@@ -87,7 +87,7 @@ class IndustryV2(object):
             parameterType="Required",
             direction="Input",
             category="Industry Data Settings")
-        in_sect4.value = sep.join([in_gdb, 'Sect4_Discharge'])
+        in_sect4.value = sep.join([in_gdb, 'Section4Discharges_D07_IsMain'])
 
         return [out_gdb, out_fld,
                 project_name, nutrient, region, selection,

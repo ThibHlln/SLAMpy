@@ -78,7 +78,7 @@ class PeatV1(object):
             parameterType="Required",
             direction="Input",
             category="Peat Data Settings")
-        in_peat.value = sep.join([in_gdb, 'CorineLandCover_2012'])
+        in_peat.value = sep.join([in_gdb, 'clc12_IE'])
 
         in_factors_n = arcpy.Parameter(
             displayName="Land Cover Factors for Nitrogen (N)",
