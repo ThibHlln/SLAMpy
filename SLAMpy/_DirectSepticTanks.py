@@ -85,18 +85,6 @@ class DWTSv2(object):
                 in_dwts]
 
     def execute(self, parameters, messages):
-        """
-        :param parameters: list of the 8 parameters in the order as follows:
-           [0] nutrient of interest [type: str] {possible values: 'Nitrogen (N)' or 'Nitrogen (P)'}
-           [1] path of the feature class for the region of interest [type: str] {required}
-           [2] SQL query to select specific location(s) within region [type: str] {optional}
-           [3] path of the input feature class of the domestic septic tanks data for arable [type: str] {required}
-           [4] path of the output feature class for Septic Tanks load [type: str] {required}
-        :param messages: Messages object provided by ArcPy when running the tool
-
-        N.B. If the optional parameters are not used, they must be set to None.
-        """
-
         # retrieve parameters
         out_gdb, out_fld, project_name, nutrient, region, selection, in_dwts = \
             [p.valueAsText for p in parameters]
@@ -118,7 +106,22 @@ class DWTSv2(object):
 
 def dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages,
                           out_dwts=None):
-
+    """
+    :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
+    :type project_name: str
+    :param nutrient: nutrient of interest {possible values: 'N' or 'P'} [required]
+    :type nutrient: str
+    :param location: path of the feature class for the location of interest [required]
+    :type location: str
+    :param in_dwts: path of the input feature class of the domestic septic tank systems data [required]
+    :type in_dwts: str
+    :param out_gdb: path of the geodatabase where to store the output feature classes [required]
+    :type out_gdb: str
+    :param messages: object used for communication with the user interface [required]
+    :type messages: instance of a class featuring a 'addMessage' method
+    :param out_dwts: path of the output feature class for domestic septic tank systems load [optional]
+    :type out_dwts: str
+    """
     # calculate load for septic tank systems
     messages.addMessage("> Calculating {} load for septic tank systems.".format(nutrient))
 

@@ -94,20 +94,6 @@ class IndustryV2(object):
                 in_ipc, in_sect4]
 
     def execute(self, parameters, messages):
-        """
-        :param parameters: list of the 8 parameters in the order as follows:
-           [0] nutrient of interest [type: str] {possible values: 'Nitrogen (N)' or 'Nitrogen (P)'}
-           [1] path of the feature class for the region of interest [type: str] {required}
-           [2] SQL query to select specific location(s) within region [type: str] {optional}
-           [3] path of the input feature class of the Licenced 4 Industry data for arable [type: str] {required}
-           [4] path of the input feature class of the IPC Industry data for pasture [type: str] {required}
-           [5] path of the output feature class for Licenced 4 Industry load [type: str] {required}
-           [6] path of the output feature class for IPC Industry load [type: str] {required}
-        :param messages: Messages object provided by ArcPy when running the tool
-
-        N.B. If the optional parameters are not used, they must be set to None.
-        """
-
         # retrieve parameters
         out_gdb, out_fld, project_name, nutrient, region, selection, in_ipc, in_sect4 = \
             [p.valueAsText for p in parameters]
