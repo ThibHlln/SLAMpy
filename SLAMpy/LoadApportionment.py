@@ -104,6 +104,22 @@ class SLAMv3(object):
             category="Diffuse Agriculture Data Settings")
         in_pasture.value = sep.join([in_gdb, 'PathwaysCCT_IRL_Pasture_LPIS'])
 
+        ex_arable = arcpy.Parameter(
+            displayName="Existing output for arable to use as a substitute to the tool",
+            name="ex_arable",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Diffuse Agriculture Data Settings")
+
+        ex_pasture = arcpy.Parameter(
+            displayName="Existing output for pasture to use as a substitute to the tool",
+            name="ex_pasture",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Diffuse Agriculture Data Settings")
+
         # Parameters specific to Atmospheric Deposition
         in_atm_depo = arcpy.Parameter(
             displayName="Data for Atmospheric Deposition",
@@ -113,6 +129,14 @@ class SLAMv3(object):
             direction="Input",
             category="Atmospheric Deposition Data Settings")
         in_atm_depo.value = sep.join([in_gdb, 'AtmosDep_Lakes'])
+
+        ex_atm_depo = arcpy.Parameter(
+            displayName="Existing output for atmospheric deposition to use as a substitute to the tool",
+            name="ex_atm_depo",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Atmospheric Deposition Data Settings")
 
         # Parameters specific to Forestry, Peat, and Urban
         in_land_cover = arcpy.Parameter(
@@ -142,6 +166,30 @@ class SLAMv3(object):
             category="Forestry, Peat, and Urban Data Settings")
         in_factors_p.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Corine_P$'])
 
+        ex_forest = arcpy.Parameter(
+            displayName="Existing output for forestry to use as a substitute to the tool",
+            name="ex_forest",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Forestry, Peat, and Urban Data Settings")
+
+        ex_peat = arcpy.Parameter(
+            displayName="Existing output for peatlands to use as a substitute to the tool",
+            name="ex_peat",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Forestry, Peat, and Urban Data Settings")
+
+        ex_urban = arcpy.Parameter(
+            displayName="Existing output for diffuse urban to use as a substitute to the tool",
+            name="ex_urban",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Forestry, Peat, and Urban Data Settings")
+
         # Parameters specific to Industry
         in_ipc = arcpy.Parameter(
             displayName="IPC Licences Data",
@@ -161,6 +209,22 @@ class SLAMv3(object):
             category="Industry Data Settings")
         in_sect4.value = sep.join([in_gdb, 'Section4Discharges_D07_IsMain'])
 
+        ex_ipc = arcpy.Parameter(
+            displayName="Existing output for IPC industries to use as a substitute to the tool",
+            name="ex_ipc",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Industry Data Settings")
+
+        ex_sect4 = arcpy.Parameter(
+            displayName="Existing output for Section 4 industries to use as a substitute to the tool",
+            name="ex_sect4",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Industry Data Settings")
+
         # Parameters specific to Septic Tanks
         in_dwts = arcpy.Parameter(
             displayName="Domestic Septic Tanks Data",
@@ -170,6 +234,14 @@ class SLAMv3(object):
             direction="Input",
             category="Septic Tanks Data Settings")
         in_dwts.value = sep.join([in_gdb, 'SepticTankSystems_LoadModel17'])
+
+        ex_dwts = arcpy.Parameter(
+            displayName="Existing output for septic tanks to use as a substitute to the tool",
+            name="ex_dwts",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Septic Tanks Data Settings")
 
         # Parameters specific to Wastewater Treatment Plants
         in_agglo = arcpy.Parameter(
@@ -181,19 +253,33 @@ class SLAMv3(object):
             category="Wastewater Data Settings")
         in_agglo.value = sep.join([in_gdb, 'SLAM_Agglom15_March17_IsMain'])
 
+        ex_agglo = arcpy.Parameter(
+            displayName="Existing output for WWTPs to use as a substitute to the tool",
+            name="ex_agglo",
+            datatype="DEFeatureClass",
+            parameterType="Optional",
+            direction="Input",
+            category="Wastewater Data Settings")
+
         return [out_gdb, out_fld,
                 project_name, nutrient, region, selection, field,
-                in_arable, in_pasture,
-                in_atm_depo,
-                in_land_cover, in_factors_n, in_factors_p,
-                in_ipc, in_sect4,
-                in_dwts,
-                in_agglo]
+                in_arable, in_pasture, ex_arable, ex_pasture,
+                in_atm_depo, ex_atm_depo,
+                in_land_cover, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban,
+                in_ipc, in_sect4, ex_ipc, ex_sect4,
+                in_dwts, ex_dwts,
+                in_agglo, ex_agglo]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, out_fld, project_name, nutrient, region, selection, field, in_arable, in_pasture, in_atm_depo, \
-            in_land_cover, in_factors_n, in_factors_p, in_ipc, in_sect4, in_dwts, in_agglo = \
+        out_gdb, out_fld, \
+            project_name, nutrient, region, selection, field, \
+            in_arable, in_pasture, ex_arable, ex_pasture, \
+            in_atm_depo, ex_atm_depo, \
+            in_land_cover, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban, \
+            in_ipc, in_sect4, ex_ipc, ex_sect4, \
+            in_dwts, ex_dwts, \
+            in_agglo, ex_agglo = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
@@ -211,22 +297,54 @@ class SLAMv3(object):
         in_factors = in_factors_n if nutrient == 'N' else in_factors_p
 
         # run geoprocessing functions for each source load
-        out_arable, out_pasture = \
-            cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
-        out_atm_depo = \
-            atmos_v2_geoprocessing(project_name, nutrient, location, in_atm_depo, out_gdb, messages)
-        out_forest = \
-            forestry_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_factors, out_gdb, messages)
-        out_peat = \
-            peat_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_factors, out_gdb, messages)
-        out_urban = \
-            urban_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_factors, out_gdb, messages)
-        out_ipc, out_sect4 = \
-            industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4, out_gdb, messages)
-        out_dwts = \
-            dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
-        out_agglo = \
-            ww_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
+        if ex_arable and ex_pasture:
+            messages.addMessage("> Reusing existing data for arable and pasture.")
+            out_arable, out_pasture = ex_arable, ex_pasture
+        else:
+            out_arable, out_pasture = \
+                cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
+        if ex_atm_depo:
+            messages.addMessage("> Reusing existing data for atmospheric deposition.")
+            out_atm_depo = ex_atm_depo
+        else:
+            out_atm_depo = \
+                atmos_v2_geoprocessing(project_name, nutrient, location, in_atm_depo, out_gdb, messages)
+        if ex_forest:
+            messages.addMessage("> Reusing existing data for forestry.")
+            out_forest = ex_forest
+        else:
+            out_forest = \
+                forestry_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_factors, out_gdb, messages)
+        if ex_peat:
+            messages.addMessage("> Reusing existing data for peatlands.")
+            out_peat = ex_peat
+        else:
+            out_peat = \
+                peat_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_factors, out_gdb, messages)
+        if ex_urban:
+            messages.addMessage("> Reusing existing data for diffuse urban.")
+            out_urban = ex_urban
+        else:
+            out_urban = \
+                urban_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_factors, out_gdb, messages)
+        if ex_ipc and ex_sect4:
+            messages.addMessage("> Reusing existing data for IPC and Section 4 industries.")
+            out_ipc, out_sect4 = ex_ipc, ex_sect4
+        else:
+            out_ipc, out_sect4 = \
+                industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4, out_gdb, messages)
+        if ex_dwts:
+            messages.addMessage("> Reusing existing data for septic tanks.")
+            out_dwts = ex_dwts
+        else:
+            out_dwts = \
+                dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
+        if ex_agglo:
+            messages.addMessage("> Reusing existing data for WWTPs.")
+            out_agglo = ex_agglo
+        else:
+            out_agglo = \
+                ww_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
 
         # run geoprocessing function for load apportionment
         load_summary_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
