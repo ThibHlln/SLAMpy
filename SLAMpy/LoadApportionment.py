@@ -7,7 +7,7 @@ from _DiffusePeat import peat_v1_geoprocessing
 from _DiffuseUrban import urban_v1_geoprocessing
 from _DirectIndustry import industry_v2_geoprocessing
 from _DirectSepticTanks import dwts_v2_geoprocessing
-from _DirectWastewater import ww_2015_geoprocessing
+from _DirectWastewater import ww_v2_geoprocessing
 
 
 class SLAMv3(object):
@@ -226,7 +226,7 @@ class SLAMv3(object):
         out_dwts = \
             dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
         out_agglo = \
-            ww_2015_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
+            ww_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
 
         # run geoprocessing function for load apportionment
         load_summary_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,

@@ -2,9 +2,9 @@ from os import path, sep
 import arcpy
 
 
-class WasteWater2015(object):
+class WasteWaterV2(object):
     def __init__(self):
-        self.__version__ = '2015'
+        self.__version__ = '2'
         self.category = 'Sources'
         self.label = 'WasteWater [{}]'.format(self.__version__)
         self.description = """
@@ -106,15 +106,15 @@ class WasteWater2015(object):
             location = region
 
         # run geoprocessing function
-        ww_2015_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
+        ww_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def ww_2015_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages,
-                          out_agglo=None):
+def ww_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages,
+                        out_agglo=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str
@@ -156,15 +156,14 @@ def ww_2015_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, m
     return out_agglo
 
 
-class WasteWater2014(object):
+class WasteWaterV1(object):
     def __init__(self):
-        self.__version__ = '2014'
+        self.__version__ = '1'
         self.category = 'Sources'
         self.label = 'WasteWater [{}]'.format(self.__version__)
         self.description = """
         The wastewater discharges (or agglomeration) module calculates the emissions from wastewater treatment plants 
-        (WWTPs) and Storm Water Overflows (SWOs, aka combined sewer overflow; CSO) using information reported in the 
-        annual environmental reports (AERs) where available, and otherwise make estimates using the best available 
+        (WWTPs) and Storm Water Overflows (SWOs, aka combined sewer overflow; CSO) estimates using the best available 
         information on the population equivalents (PE), influent concentrations, and flow rates.
         """
         self.canRunInBackground = False
@@ -281,15 +280,15 @@ class WasteWater2014(object):
         in_factors_wwtp = in_factors_wwtp_n if nutrient == 'N' else in_factors_wwtp_p
 
         # run geoprocessing function
-        ww_2014_geoprocessing(project_name, nutrient, location, in_wwtp, in_factors_wwtp, out_gdb, messages)
+        ww_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_factors_wwtp, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def ww_2014_geoprocessing(project_name, nutrient, location, in_wwtp, in_factors_wwtp, out_gdb, messages,
-                          out_wwtp=None):
+def ww_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_factors_wwtp, out_gdb, messages,
+                        out_wwtp=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str
