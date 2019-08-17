@@ -5,8 +5,8 @@ import arcpy
 class WastewaterV2(object):
     def __init__(self):
         self.__version__ = '2'
-        self.category = 'Sources sub-models'
-        self.label = 'Wastewater [{}]'.format(self.__version__)
+        self.category = 'Sources'
+        self.label = 'Wastewater [v{}]'.format(self.__version__)
         self.description = """
         The wastewater discharges (or agglomeration) module calculates the emissions from wastewater treatment plants 
         (WWTPs) and Storm Water Overflows (SWOs, aka combined sewer overflow; CSO) using information reported in the 
@@ -132,24 +132,24 @@ def wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_
     :type out_agglo: str
     """
     # calculate load for wastewater treatment plants
-    messages.addMessage("> Calculating {} load for wastewater treatment plants.".format(nutrient))
+    messages.addMessage("> Calculating {} load for Wastewater Treatment Plants.".format(nutrient))
 
     if not out_agglo:
         out_agglo = sep.join([out_gdb, project_name + '_{}_WasteWater'.format(nutrient)])
 
-    arcpy.SpatialJoin_analysis(location, in_agglo, out_agglo,
+    arcpy.SpatialJoin_analysis(in_agglo, location, out_agglo,
                                join_operation="JOIN_ONE_TO_ONE", join_type="KEEP_COMMON",
                                match_option='CLOSEST', search_radius='2000 Meters')
 
-    arcpy.AddField_management(out_agglo, "CSO15", "DOUBLE",
+    arcpy.AddField_management(out_agglo, "CSOWast2calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_agglo, "CSO15",
+    arcpy.CalculateField_management(out_agglo, "CSOWast2calc",
                                     "!T{}_SWO!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_agglo, "Agglom2015", "DOUBLE",
+    arcpy.AddField_management(out_agglo, "AggWast2calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_agglo, "Agglom2015",
+    arcpy.CalculateField_management(out_agglo, "AggWast2calc",
                                     "!PointT{}!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
@@ -160,7 +160,7 @@ class WasteWaterV1(object):
     def __init__(self):
         self.__version__ = '1'
         self.category = 'Sources'
-        self.label = 'WasteWater [{}]'.format(self.__version__)
+        self.label = 'Wastewater [v{}]'.format(self.__version__)
         self.description = """
         The wastewater discharges (or agglomeration) module calculates the emissions from wastewater treatment plants 
         (WWTPs) and Storm Water Overflows (SWOs, aka combined sewer overflow; CSO) estimates using the best available 
@@ -311,9 +311,9 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
     messages.addMessage("> Calculating {} load for wastewater treatment plants.".format(nutrient))
 
     if not out_wwtp:
-        out_wwtp = sep.join([out_gdb, project_name + '_{}_WasteWater2014'.format(nutrient)])
+        out_wwtp = sep.join([out_gdb, project_name + '_{}_WasteWater'.format(nutrient)])
 
-    arcpy.SpatialJoin_analysis(location, in_wwtp, out_wwtp,
+    arcpy.SpatialJoin_analysis(in_wwtp, location, out_wwtp,
                                join_operation="JOIN_ONE_TO_ONE", join_type="KEEP_COMMON",
                                match_option='CLOSEST', search_radius='2000 Meters')
 
@@ -376,9 +376,9 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
                                         return {}
                                     """.format(raw, prelim, primary, second, tertN, tertNP, tertP, second, primary))
 
-    arcpy.AddField_management(out_wwtp, "WWTP_PE", "DOUBLE",
+    arcpy.AddField_management(out_wwtp, "PEqWast1calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "WWTP_PE",
+    arcpy.CalculateField_management(out_wwtp, "PEqWast1calc",
                                     expression="value(float(!{}_WWTP_AER!), float(!PE_calc!), "
                                                "float(!Treat_Fact!))".format(nutrient),
                                     expression_type="PYTHON_9.3",
@@ -390,21 +390,9 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
                                         return pe_calc * treat_fact *({} * 365 / 1000)
                                     """.format(POPfactor))
 
-    arcpy.AddField_management(out_wwtp, "WWTP_AER", "DOUBLE",
+    arcpy.AddField_management(out_wwtp, "PEqSWOWast1calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "WWTP_AER",
-                                    "!{}_WWTP_AER!".format(nutrient),
-                                    expression_type="PYTHON_9.3")
-
-    arcpy.AddField_management(out_wwtp, "SWO_AER", "DOUBLE",
-                              field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "SWO_AER",
-                                    "!{}_SWO_AER!".format(nutrient),
-                                    expression_type="PYTHON_9.3")
-
-    arcpy.AddField_management(out_wwtp, "SWO_Est", "DOUBLE",
-                              field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "SWO_Est",
+    arcpy.CalculateField_management(out_wwtp, "PEqSWOWast1calc",
                                     expression="value(float(!{}_SWO_AER!), float(!PE!), "
                                                "float(!LOSS_perce!))".format(nutrient),
                                     expression_type="PYTHON_9.3",
@@ -415,3 +403,15 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
                                     else:
                                         return 0
                                     """.format(POPfactor))
+
+    arcpy.AddField_management(out_wwtp, "AERWast1calc", "DOUBLE",
+                              field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
+    arcpy.CalculateField_management(out_wwtp, "AERWast1calc",
+                                    "!{}_WWTP_AER!".format(nutrient),
+                                    expression_type="PYTHON_9.3")
+
+    arcpy.AddField_management(out_wwtp, "AERSWOWast1calc", "DOUBLE",
+                              field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
+    arcpy.CalculateField_management(out_wwtp, "AERSWOWast1calc",
+                                    "!{}_SWO_AER!".format(nutrient),
+                                    expression_type="PYTHON_9.3")
