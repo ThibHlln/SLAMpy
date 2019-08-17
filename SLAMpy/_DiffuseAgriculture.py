@@ -2,10 +2,10 @@ from os import path, sep
 import arcpy
 
 
-class CCTv2(object):
+class AgriV2(object):
     def __init__(self):
         self.__version__ = '2'
-        self.category = 'Sources'
+        self.category = 'Sources sub-models'
         self.label = 'Agriculture [v{}]'.format(self.__version__)
         self.description = "Diffuse nutrient sources from pasture and arable fields (based on PIP maps)."
         self.canRunInBackground = False
@@ -110,15 +110,15 @@ class CCTv2(object):
             location = region
 
         # run geoprocessing function
-        cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
+        agri_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages,
-                         out_arable=None, out_pasture=None):
+def agri_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages,
+                          out_arable=None, out_pasture=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str
@@ -194,12 +194,12 @@ def cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture
     return out_arable, out_pasture
 
 
-class CCTv1(object):
+class AgriV1(object):
     def __init__(self):
         self.__version__ = '1'
-        self.category = 'Sources'
+        self.category = 'Sources sub-models'
         self.label = 'Agriculture [v{}]'.format(self.__version__)
-        self.description = "Diffuse nutrient sources from pasture and arable fields (based on CSO Census)."
+        self.description = "Diffuse nutrient sources from pasture and arable fields (based on CSO Agriculture Census)."
         self.canRunInBackground = False
 
     def getParameterInfo(self):
@@ -333,16 +333,16 @@ class CCTv1(object):
         in_factors_livestock = in_factors_livestock_n if nutrient == 'N' else in_factors_livestock_p
 
         # run geoprocessing function
-        cct_v1_geoprocessing(project_name, nutrient, location, in_agri,
-                             in_factors_crop, in_factors_livestock, out_gdb, messages)
+        agri_v1_geoprocessing(project_name, nutrient, location, in_agri,
+                              in_factors_crop, in_factors_livestock, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def cct_v1_geoprocessing(project_name, nutrient, location, in_agri, in_factors_crop, in_factors_livestock, out_gdb,
-                         messages, out_arable=None, out_pasture=None):
+def agri_v1_geoprocessing(project_name, nutrient, location, in_agri, in_factors_crop, in_factors_livestock, out_gdb,
+                          messages, out_arable=None, out_pasture=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str

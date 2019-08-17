@@ -5,7 +5,7 @@ import arcpy
 class AtmosV2(object):
     def __init__(self):
         self.__version__ = '2'
-        self.category = 'Sources'
+        self.category = 'Sources sub-models'
         self.label = 'Atmospheric Deposition [v{}]'.format(self.__version__)
         self.description = "Diffuse nutrient sources from atmospheric deposition."
         self.canRunInBackground = False

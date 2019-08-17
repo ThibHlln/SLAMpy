@@ -5,7 +5,7 @@ import arcpy
 class UrbanV1(object):
     def __init__(self):
         self.__version__ = '1'
-        self.category = 'Sources'
+        self.category = 'Sources sub-models'
         self.label = 'Urban [v{}]'.format(self.__version__)
         self.description = "Diffuse nutrient sources from urban areas."
         self.canRunInBackground = False

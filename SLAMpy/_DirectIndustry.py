@@ -5,7 +5,7 @@ import arcpy
 class IndustryV2(object):
     def __init__(self):
         self.__version__ = '2'
-        self.category = 'Sources'
+        self.category = 'Sources sub-models'
         self.label = 'Industry [v{}]'.format(self.__version__)
         self.description = "Direct nutrient discharges from licensed (IPC and Section 4) industries."
         self.canRunInBackground = False

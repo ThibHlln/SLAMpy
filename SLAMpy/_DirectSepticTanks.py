@@ -2,10 +2,10 @@ from os import path, sep
 import arcpy
 
 
-class DWTSv2(object):
+class SepticV2(object):
     def __init__(self):
         self.__version__ = '2'
-        self.category = 'Sources'
+        self.category = 'Sources sub-models'
         self.label = 'Septic Tanks [v{}]'.format(self.__version__)
         self.description = "Direct nutrient discharges from septic tank systems (based on SANICOSE model)."
         self.canRunInBackground = False
@@ -101,15 +101,15 @@ class DWTSv2(object):
             location = region
 
         # run geoprocessing function
-        dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
+        septic_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages,
-                          out_dwts=None):
+def septic_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages,
+                            out_dwts=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str

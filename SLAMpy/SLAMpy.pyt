@@ -1,13 +1,13 @@
 import arcpy
-from LoadApportionment import SLAMv3
-from _DiffuseAgriculture import CCTv2
+from LoadApportionment import LoadApportionmentV3
+from _DiffuseAgriculture import AgriV2
 from _DiffuseAtmDepo import AtmosV2
 from _DiffuseForestry import ForestryV1
 from _DiffusePeat import PeatV1
 from _DiffuseUrban import UrbanV1
 from _DirectIndustry import IndustryV2
-from _DirectSepticTanks import DWTSv2
-from _DirectWastewater import WasteWaterV2
+from _DirectSepticTanks import SepticV2
+from _DirectWastewater import WastewaterV2
 arcpy.env.overwriteOutput = True
 
 
@@ -18,4 +18,4 @@ class Toolbox(object):
         self.description = "Source Load Apportionment Model for Irish Catchments."
         self.__version__ = '1'
 
-        self.tools = [SLAMv3, CCTv2, AtmosV2, ForestryV1, PeatV1, UrbanV1, IndustryV2, DWTSv2, WasteWaterV2]
+        self.tools = [LoadApportionmentV3, AgriV2, AtmosV2, ForestryV1, PeatV1, UrbanV1, IndustryV2, SepticV2, WastewaterV2]

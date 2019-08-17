@@ -1,20 +1,20 @@
 from os import path, sep
 import arcpy
-from _DiffuseAgriculture import cct_v2_geoprocessing
+from _DiffuseAgriculture import agri_v2_geoprocessing
 from _DiffuseAtmDepo import atmos_v2_geoprocessing
 from _DiffuseForestry import forestry_v1_geoprocessing
 from _DiffusePeat import peat_v1_geoprocessing
 from _DiffuseUrban import urban_v1_geoprocessing
 from _DirectIndustry import industry_v2_geoprocessing
-from _DirectSepticTanks import dwts_v2_geoprocessing
-from _DirectWastewater import ww_v2_geoprocessing
+from _DirectSepticTanks import septic_v2_geoprocessing
+from _DirectWastewater import wastewater_v2_geoprocessing
 
 
-class SLAMv3(object):
+class LoadApportionmentV3(object):
     def __init__(self):
         self.__version__ = '3'
-        self.label = 'SLAM [v{}]'.format(self.__version__)
-        self.description = "Calculates the nutrient (N or P) loads from all sources."
+        self.label = 'Source Load Apportionment [v{}]'.format(self.__version__)
+        self.description = "Calculates the nutrient (N or P) loads from all diffuse and point sources."
         self.canRunInBackground = False
 
     def getParameterInfo(self):
@@ -302,7 +302,7 @@ class SLAMv3(object):
             out_arable, out_pasture = ex_arable, ex_pasture
         else:
             out_arable, out_pasture = \
-                cct_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
+                agri_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
         if ex_atm_depo:
             messages.addMessage("> Reusing existing data for atmospheric deposition.")
             out_atm_depo = ex_atm_depo
@@ -338,30 +338,30 @@ class SLAMv3(object):
             out_dwts = ex_dwts
         else:
             out_dwts = \
-                dwts_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
+                septic_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
         if ex_agglo:
             messages.addMessage("> Reusing existing data for WWTPs.")
             out_agglo = ex_agglo
         else:
             out_agglo = \
-                ww_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
+                wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
 
         # run geoprocessing function for load apportionment
-        load_summary_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
-                                      out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
-                                      out_ipc, out_sect4, out_dwts, out_agglo,
-                                      messages)
+        loadapportionment_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
+                                           out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
+                                           out_ipc, out_sect4, out_dwts, out_agglo,
+                                           messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def load_summary_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
-                                  out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
-                                  out_ipc, out_sect4, out_dwts, out_agglo,
-                                  messages,
-                                  out_summary=None):
+def loadapportionment_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
+                                       out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
+                                       out_ipc, out_sect4, out_dwts, out_agglo,
+                                       messages,
+                                       out_summary=None):
 
     # calculate the summary statistics using the sorting field provided for each source load
     messages.addMessage("> Calculating summary loads for all sources of {}.".format(nutrient))

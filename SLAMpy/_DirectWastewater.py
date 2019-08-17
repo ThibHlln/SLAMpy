@@ -2,11 +2,11 @@ from os import path, sep
 import arcpy
 
 
-class WasteWaterV2(object):
+class WastewaterV2(object):
     def __init__(self):
         self.__version__ = '2'
-        self.category = 'Sources'
-        self.label = 'WasteWater [{}]'.format(self.__version__)
+        self.category = 'Sources sub-models'
+        self.label = 'Wastewater [{}]'.format(self.__version__)
         self.description = """
         The wastewater discharges (or agglomeration) module calculates the emissions from wastewater treatment plants 
         (WWTPs) and Storm Water Overflows (SWOs, aka combined sewer overflow; CSO) using information reported in the 
@@ -106,15 +106,15 @@ class WasteWaterV2(object):
             location = region
 
         # run geoprocessing function
-        ww_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
+        wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def ww_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages,
-                        out_agglo=None):
+def wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages,
+                                out_agglo=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str
@@ -280,15 +280,15 @@ class WasteWaterV1(object):
         in_factors_wwtp = in_factors_wwtp_n if nutrient == 'N' else in_factors_wwtp_p
 
         # run geoprocessing function
-        ww_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_factors_wwtp, out_gdb, messages)
+        wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_factors_wwtp, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def ww_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_factors_wwtp, out_gdb, messages,
-                        out_wwtp=None):
+def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_factors_wwtp, out_gdb, messages,
+                                out_wwtp=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str
