@@ -367,12 +367,12 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
     messages.addMessage("> Calculating summary loads for all sources of {}.".format(nutrient))
 
     arcpy.Statistics_analysis(in_table=out_arable, out_table=out_arable + '_stats',
-                              statistics_fields=[["GWCrop2CCT", "SUM"], ["Crop2CCT", "SUM"]], case_field=field)
+                              statistics_fields=[["GWArab2calc", "SUM"], ["Arab2calc", "SUM"]], case_field=field)
     arcpy.Statistics_analysis(in_table=out_pasture, out_table=out_pasture + '_stats',
-                              statistics_fields=[["GWPast2CCT", "SUM"], ["Past2CCT", "SUM"]], case_field=field)
+                              statistics_fields=[["GWPast2calc", "SUM"], ["Past2calc", "SUM"]], case_field=field)
 
     arcpy.Statistics_analysis(in_table=out_atm_depo, out_table=out_atm_depo + '_stats',
-                              statistics_fields=[["Atmos2calc", "SUM"]], case_field=field)
+                              statistics_fields=[["Atm2calc", "SUM"]], case_field=field)
 
     arcpy.Statistics_analysis(in_table=out_forest, out_table=out_forest + '_stats',
                               statistics_fields=[["For1calc", "SUM"]], case_field=field)
@@ -381,18 +381,18 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
                               statistics_fields=[["Peat1calc", "SUM"]], case_field=field)
 
     arcpy.Statistics_analysis(in_table=out_urban, out_table=out_urban + '_stats',
-                              statistics_fields=[["Urb0calc", "SUM"]], case_field=field)
+                              statistics_fields=[["Urb1calc", "SUM"]], case_field=field)
 
     arcpy.Statistics_analysis(in_table=out_ipc, out_table=out_ipc + '_stats',
-                              statistics_fields=[["IPPC_calc", "SUM"]], case_field=field)
+                              statistics_fields=[["IPInd2calc", "SUM"]], case_field=field)
     arcpy.Statistics_analysis(in_table=out_sect4, out_table=out_sect4 + '_stats',
-                              statistics_fields=[["Sect4_Load", "SUM"]], case_field=field)
+                              statistics_fields=[["S4Ind2calc", "SUM"]], case_field=field)
 
     arcpy.Statistics_analysis(in_table=out_dwts, out_table=out_dwts + '_stats',
-                              statistics_fields=[["GW_DWTS", "SUM"], ["DWTS", "SUM"]], case_field=field)
+                              statistics_fields=[["GWSept2calc", "SUM"], ["Sept2calc", "SUM"]], case_field=field)
 
     arcpy.Statistics_analysis(in_table=out_agglo, out_table=out_agglo + '_stats',
-                              statistics_fields=[["CSO15", "SUM"], ["Agglom2015", "SUM"]], case_field=field)
+                              statistics_fields=[["CSOWast2calc", "SUM"], ["AggWast2calc", "SUM"]], case_field=field)
 
     # copy the input region or sub-region into the output gdb to store the results in
     messages.addMessage("> Creating output feature class to store load apportionment for {}.".format(nutrient))
@@ -407,14 +407,14 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
 
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_arable + '_stats', join_field=field,
-                               fields=["SUM_GWCrop2CCT", "SUM_Crop2CCT"])
+                               fields=["SUM_GWArab2calc", "SUM_Arab2calc"])
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_pasture + '_stats', join_field=field,
-                               fields=["SUM_GWPast2CCT", "SUM_Past2CCT"])
+                               fields=["SUM_GWPast2calc", "SUM_Past2calc"])
 
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_atm_depo + '_stats', join_field=field,
-                               fields=["SUM_Atmos2calc"])
+                               fields=["SUM_Atm2calc"])
 
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_forest + '_stats', join_field=field,
@@ -426,22 +426,22 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
 
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_urban + '_stats', join_field=field,
-                               fields=["SUM_Urb0calc"])
+                               fields=["SUM_Urb1calc"])
 
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_ipc + '_stats', join_field=field,
-                               fields=["SUM_IPPC_calc"])
+                               fields=["SUM_IPInd2calc"])
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_sect4 + '_stats', join_field=field,
-                               fields=["SUM_Sect4_Load"])
+                               fields=["SUM_S4Ind2calc"])
 
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_dwts + '_stats', join_field=field,
-                               fields=["SUM_GW_DWTS", "SUM_DWTS"])
+                               fields=["SUM_GWSept2calc", "SUM_Sept2calc"])
 
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_agglo + '_stats', join_field=field,
-                               fields=["SUM_CSO15", "SUM_Agglom2015"])
+                               fields=["SUM_CSOWast2calc", "SUM_AggWast2calc"])
 
     # garbage collection of the summary stats feature classes created for each individual source load
     for source in [out_arable, out_pasture, out_atm_depo, out_forest, out_peat,

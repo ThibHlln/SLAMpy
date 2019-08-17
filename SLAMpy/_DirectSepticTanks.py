@@ -5,7 +5,7 @@ import arcpy
 class SepticV2(object):
     def __init__(self):
         self.__version__ = '2'
-        self.category = 'Sources sub-models'
+        self.category = 'Sources'
         self.label = 'Septic Tanks [v{}]'.format(self.__version__)
         self.description = "Direct nutrient discharges from septic tank systems (based on SANICOSE model)."
         self.canRunInBackground = False
@@ -127,7 +127,7 @@ def septic_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, 
     :type out_dwts: str
     """
     # calculate load for septic tank systems
-    messages.addMessage("> Calculating {} load for septic tank systems.".format(nutrient))
+    messages.addMessage("> Calculating {} load for Septic Tank Systems.".format(nutrient))
 
     if not out_dwts:
         out_dwts = sep.join([out_gdb, project_name + '_{}_SepticTanks'.format(nutrient)])
@@ -135,15 +135,15 @@ def septic_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, 
     arcpy.Intersect_analysis([location, in_dwts], out_dwts,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_dwts, "GW_DWTS", "DOUBLE",
+    arcpy.AddField_management(out_dwts, "GWSept2calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_dwts, "GW_DWTS",
+    arcpy.CalculateField_management(out_dwts, "GWSept2calc",
                                     "!GW_{}_2c!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_dwts, "DWTS", "DOUBLE",
+    arcpy.AddField_management(out_dwts, "Sept2calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_dwts, "DWTS",
+    arcpy.CalculateField_management(out_dwts, "Sept2calc",
                                     "!Total_{}_2c!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 

@@ -5,7 +5,7 @@ import arcpy
 class AtmosV2(object):
     def __init__(self):
         self.__version__ = '2'
-        self.category = 'Sources sub-models'
+        self.category = 'Sources'
         self.label = 'Atmospheric Deposition [v{}]'.format(self.__version__)
         self.description = "Diffuse nutrient sources from atmospheric deposition."
         self.canRunInBackground = False
@@ -140,16 +140,16 @@ def atmos_v2_geoprocessing(project_name, nutrient, location, in_atm_depo, out_gd
     arcpy.CalculateField_management(out_atm_depo, "Area_ha", "!shape.area@hectares!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_atm_depo, "AtmosRate", "DOUBLE",
+    arcpy.AddField_management(out_atm_depo, "AtmRate", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_atm_depo, "AtmosRate",
+    arcpy.CalculateField_management(out_atm_depo, "AtmRate",
                                     "!{}_Dep_tot!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_atm_depo, "Atmos2calc", "DOUBLE",
+    arcpy.AddField_management(out_atm_depo, "Atm2calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_atm_depo, "Atmos2calc",
-                                    "!AtmosRate! * !Area_ha!".format(nutrient),
+    arcpy.CalculateField_management(out_atm_depo, "Atm2calc",
+                                    "!AtmRate! * !Area_ha!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
     return out_atm_depo

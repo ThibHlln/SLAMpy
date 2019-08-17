@@ -5,7 +5,7 @@ import arcpy
 class UrbanV1(object):
     def __init__(self):
         self.__version__ = '1'
-        self.category = 'Sources sub-models'
+        self.category = 'Sources'
         self.label = 'Urban [v{}]'.format(self.__version__)
         self.description = "Diffuse nutrient sources from urban areas."
         self.canRunInBackground = False
@@ -182,9 +182,9 @@ def urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_factor
     if not found:
         raise Exception('Factors for {} are not available in {}'.format(nutrient, in_factors))
 
-    arcpy.AddField_management(out_urban, "Urb0calc", "DOUBLE",
+    arcpy.AddField_management(out_urban, "Urb1calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_urban, "Urb0calc",
+    arcpy.CalculateField_management(out_urban, "Urb1calc",
                                     expression="factor(!CODE_12!, float(!Area_ha!))",
                                     expression_type="PYTHON_9.3",
                                     code_block=

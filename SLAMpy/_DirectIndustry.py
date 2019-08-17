@@ -5,7 +5,7 @@ import arcpy
 class IndustryV2(object):
     def __init__(self):
         self.__version__ = '2'
-        self.category = 'Sources sub-models'
+        self.category = 'Sources'
         self.label = 'Industry [v{}]'.format(self.__version__)
         self.description = "Direct nutrient discharges from licensed (IPC and Section 4) industries."
         self.canRunInBackground = False
@@ -140,7 +140,7 @@ def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4
     :type out_sect4: str
     """
     # calculate load for IPC licences
-    messages.addMessage("> Calculating {} load for IPC industries.".format(nutrient))
+    messages.addMessage("> Calculating {} load for IPC Industries.".format(nutrient))
 
     if not out_ipc:
         out_ipc = sep.join([out_gdb, project_name + '_{}_IndustryIPC'.format(nutrient)])
@@ -148,14 +148,14 @@ def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4
     arcpy.Intersect_analysis([location, in_ipc], out_ipc,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_ipc, "IPPC_calc", "DOUBLE",
+    arcpy.AddField_management(out_ipc, "IPInd2calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_ipc, "IPPC_calc",
+    arcpy.CalculateField_management(out_ipc, "IPInd2calc",
                                     "!{}_2012_LAM!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
     # calculate load for Section 4 licences
-    messages.addMessage("> Calculating {} load for Section 4 industries.".format(nutrient))
+    messages.addMessage("> Calculating {} load for Section 4 Industries.".format(nutrient))
 
     if not out_sect4:
         out_sect4 = sep.join([out_gdb, project_name + '_{}_IndustrySect4'.format(nutrient)])
@@ -192,9 +192,9 @@ def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4
                                         return float(max([tp, po4]))
                                     """.format(nutrient))
 
-    arcpy.AddField_management(out_sect4, "Sect4_Load", "DOUBLE",
+    arcpy.AddField_management(out_sect4, "S4Ind2calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_sect4, "Sect4_Load",
+    arcpy.CalculateField_management(out_sect4, "S4Ind2calc",
                                     expression="!Sect4_ELV! * 0.25 * !Sect4_Flow! * 0.365",
                                     expression_type="PYTHON_9.3")
 

@@ -5,7 +5,7 @@ import arcpy
 class PeatV1(object):
     def __init__(self):
         self.__version__ = '1'
-        self.category = 'Sources sub-models'
+        self.category = 'Sources'
         self.label = 'Peat [v{}]'.format(self.__version__)
         self.description = "Diffuse nutrient sources from peatlands."
         self.canRunInBackground = False
