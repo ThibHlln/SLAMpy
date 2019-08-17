@@ -78,7 +78,7 @@ class LoadApportionmentV3(object):
         selection.parameterDependencies = [region.name]
 
         field = arcpy.Parameter(
-            displayName="Field for Summary Spatial Scale",
+            displayName="Field for Spatial Discretisation of Loads Summary",
             name="field",
             datatype="Field",
             parameterType="Required",
@@ -347,21 +347,21 @@ class LoadApportionmentV3(object):
                 wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
 
         # run geoprocessing function for load apportionment
-        loadapportionment_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
-                                           out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
-                                           out_ipc, out_sect4, out_dwts, out_agglo,
-                                           messages)
+        load_apportionment_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
+                                            out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
+                                            out_ipc, out_sect4, out_dwts, out_agglo,
+                                            messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def loadapportionment_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
-                                       out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
-                                       out_ipc, out_sect4, out_dwts, out_agglo,
-                                       messages,
-                                       out_summary=None):
+def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
+                                        out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
+                                        out_ipc, out_sect4, out_dwts, out_agglo,
+                                        messages,
+                                        out_summary=None):
 
     # calculate the summary statistics using the sorting field provided for each source load
     messages.addMessage("> Calculating summary loads for all sources of {}.".format(nutrient))
