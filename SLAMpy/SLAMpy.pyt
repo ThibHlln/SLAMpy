@@ -7,7 +7,8 @@ from _DiffusePeat import PeatV1
 from _DiffuseUrban import UrbanV1
 from _DirectIndustry import IndustryV2
 from _DirectSepticTanks import SepticV2
-from _DirectWastewater import WastewaterV2, WasteWaterV1
+from _DirectWastewater import WastewaterV2, WastewaterV1
+from _PostProcessing import PostProcessingV3
 arcpy.env.overwriteOutput = True
 
 
@@ -26,4 +27,5 @@ class Toolbox(object):
                       UrbanV1,
                       IndustryV2,
                       SepticV2,
-                      WastewaterV2, WasteWaterV1]
+                      WastewaterV2, WastewaterV1,
+                      PostProcessingV3]
