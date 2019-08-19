@@ -34,15 +34,6 @@ class WastewaterV2(object):
             category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
-        out_fld = arcpy.Parameter(
-            displayName="Output Folder",
-            name="out_fld",
-            datatype="DEWorkspace",
-            parameterType="Required",
-            direction="Input",
-            category='# Folders Settings')
-        out_fld.value = sep.join([root, 'out'])
-
         # Parameters Common to All Sources
         project_name = arcpy.Parameter(
             displayName="Name of the Project",
@@ -85,13 +76,13 @@ class WastewaterV2(object):
             category="Wastewater Data Settings")
         in_agglo.value = sep.join([in_gdb, 'SLAM_Agglom15_March17_IsMain'])
 
-        return [out_gdb, out_fld,
+        return [out_gdb,
                 project_name, nutrient, region, selection,
                 in_agglo]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, out_fld, project_name, nutrient, region, selection, in_agglo = \
+        out_gdb, project_name, nutrient, region, selection, in_agglo = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
@@ -187,15 +178,6 @@ class WastewaterV1(object):
             category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
-        out_fld = arcpy.Parameter(
-            displayName="Output Folder",
-            name="out_fld",
-            datatype="DEWorkspace",
-            parameterType="Required",
-            direction="Input",
-            category='# Folders Settings')
-        out_fld.value = sep.join([root, 'out'])
-
         # Parameters Common to All Sources
         project_name = arcpy.Parameter(
             displayName="Name of the Project",
@@ -256,13 +238,13 @@ class WastewaterV1(object):
             category="Wastewater Data Settings")
         in_factors_wwtp_p.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'UWWTP_P$'])
 
-        return [out_gdb, out_fld,
+        return [out_gdb,
                 project_name, nutrient, region, selection,
                 in_wwtp, in_factors_wwtp_n, in_factors_wwtp_p]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, out_fld, project_name, nutrient, region, selection, in_wwtp, in_factors_wwtp_n, in_factors_wwtp_p = \
+        out_gdb, project_name, nutrient, region, selection, in_wwtp, in_factors_wwtp_n, in_factors_wwtp_p = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on

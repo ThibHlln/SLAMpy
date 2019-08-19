@@ -29,16 +29,7 @@ class PostProcessingV3(object):
             category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
-        out_fld = arcpy.Parameter(
-            displayName="Output Folder",
-            name="out_fld",
-            datatype="DEWorkspace",
-            parameterType="Required",
-            direction="Input",
-            category='# Folders Settings')
-        out_fld.value = sep.join([root, 'out'])
-
-        # Parameters Common to All Sources
+        # Parameters for Post-Processing
         project_name = arcpy.Parameter(
             displayName="Name of the Project",
             name="project_name",
@@ -55,38 +46,38 @@ class PostProcessingV3(object):
         nutrient.filter.type = "ValueList"
         nutrient.filter.list = ['Nitrogen (N)', 'Phosphorus (P)']
 
-        # Parameters specific to post-processing
-        out_summary = arcpy.Parameter(
-            displayName="Feature Class containing the Summary of Nutrient Loads.",
-            name="out_summary",
-            datatype="DEFeatureClass",
-            parameterType="Required",
-            direction="Input")
-
-        return [out_gdb, out_fld,
-                project_name, nutrient,
-                out_summary]
+        return [out_gdb,
+                project_name, nutrient]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, out_fld, project_name, nutrient, out_summary = [p.valueAsText for p in parameters]
+        out_gdb, project_name, nutrient = [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
         nutrient = 'N' if nutrient == 'Nitrogen (N)' else 'P'
 
         # run geoprocessing function
-        postprocessing_v3_geoprocessing(project_name, nutrient, out_summary, messages)
+        postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages)
 
 
-def postprocessing_v3_geoprocessing(project_name, nutrient, out_summary, messages):
+def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
+                                    out_summary=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
     :type project_name: str
     :param nutrient: nutrient of interest {possible values: 'N' or 'P'} [required]
     :type nutrient: str
+    :param out_gdb: path of the geodatabase where to store the output feature classes [required]
+    :type out_gdb: str
+    :param messages: object used for communication with the user interface [required]
+    :type messages: instance of a class featuring a 'addMessage' method
     :param out_summary: path of the output feature class containing the calculated nutrient loads [optional]
     :type out_summary: str
     """
+
+    if not out_summary:
+        out_summary = sep.join([out_gdb, project_name + '_{}_Loads_Summary'.format(nutrient)])
+
     # calculate load for atmospheric deposition
     messages.addMessage("> Calculating {} loads totals and sub-totals.".format(nutrient))
 

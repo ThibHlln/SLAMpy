@@ -29,15 +29,6 @@ class UrbanV1(object):
             category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
-        out_fld = arcpy.Parameter(
-            displayName="Output Folder",
-            name="out_fld",
-            datatype="DEWorkspace",
-            parameterType="Required",
-            direction="Input",
-            category='# Folders Settings')
-        out_fld.value = sep.join([root, 'out'])
-
         # Parameters Common to All Sources
         project_name = arcpy.Parameter(
             displayName="Name of the Project",
@@ -98,13 +89,13 @@ class UrbanV1(object):
             category="Urban Data Settings")
         in_factors_p.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Corine_P$'])
 
-        return [out_gdb, out_fld,
+        return [out_gdb,
                 project_name, nutrient, region, selection,
                 in_urban, in_factors_n, in_factors_p]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, out_fld, project_name, nutrient, region, selection, in_urban, in_factors_n, in_factors_p = \
+        out_gdb, project_name, nutrient, region, selection, in_urban, in_factors_n, in_factors_p = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on

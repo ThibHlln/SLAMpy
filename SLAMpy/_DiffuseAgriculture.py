@@ -29,15 +29,6 @@ class AgriV2(object):
             category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
-        out_fld = arcpy.Parameter(
-            displayName="Output Folder",
-            name="out_fld",
-            datatype="DEWorkspace",
-            parameterType="Required",
-            direction="Input",
-            category='# Folders Settings')
-        out_fld.value = sep.join([root, 'out'])
-
         # Parameters Common to All Sources
         project_name = arcpy.Parameter(
             displayName="Name of the Project",
@@ -89,13 +80,13 @@ class AgriV2(object):
             category="Diffuse Agriculture Data Settings")
         in_pasture.value = sep.join([in_gdb, 'PathwaysCCT_IRL_Pasture_LPIS'])
 
-        return [out_gdb, out_fld,
+        return [out_gdb,
                 project_name, nutrient, region, selection,
                 in_arable, in_pasture]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, out_fld, project_name, nutrient, region, selection, in_arable, in_pasture = \
+        out_gdb, project_name, nutrient, region, selection, in_arable, in_pasture = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
@@ -221,15 +212,6 @@ class AgriV1(object):
             category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
-        out_fld = arcpy.Parameter(
-            displayName="Output Folder",
-            name="out_fld",
-            datatype="DEWorkspace",
-            parameterType="Required",
-            direction="Input",
-            category='# Folders Settings')
-        out_fld.value = sep.join([root, 'out'])
-
         # Parameters Common to All Sources
         project_name = arcpy.Parameter(
             displayName="Name of the Project",
@@ -308,13 +290,13 @@ class AgriV1(object):
             category="Diffuse Agriculture Data Settings")
         in_factors_livestock_p.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Livestock_P$'])
 
-        return [out_gdb, out_fld,
+        return [out_gdb,
                 project_name, nutrient, region, selection,
                 in_agri, in_factors_crop_n, in_factors_crop_p, in_factors_livestock_n, in_factors_livestock_p]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, out_fld, project_name, nutrient, region, selection, in_agri, in_factors_crop_n, in_factors_crop_p, \
+        out_gdb, project_name, nutrient, region, selection, in_agri, in_factors_crop_n, in_factors_crop_p, \
             in_factors_livestock_n, in_factors_livestock_p = [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on

@@ -29,15 +29,6 @@ class SepticV2(object):
             category='# Folders Settings')
         out_gdb.value = sep.join([root, 'out', 'output.gdb'])
 
-        out_fld = arcpy.Parameter(
-            displayName="Output Folder",
-            name="out_fld",
-            datatype="DEWorkspace",
-            parameterType="Required",
-            direction="Input",
-            category='# Folders Settings')
-        out_fld.value = sep.join([root, 'out'])
-
         # Parameters Common to All Sources
         project_name = arcpy.Parameter(
             displayName="Name of the Project",
@@ -80,13 +71,13 @@ class SepticV2(object):
             category="Septic Tanks Data Settings")
         in_dwts.value = sep.join([in_gdb, 'SepticTankSystems_LoadModel17'])
 
-        return [out_gdb, out_fld,
+        return [out_gdb,
                 project_name, nutrient, region, selection,
                 in_dwts]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, out_fld, project_name, nutrient, region, selection, in_dwts = \
+        out_gdb, project_name, nutrient, region, selection, in_dwts = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
