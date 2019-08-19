@@ -135,7 +135,7 @@ def wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_
     messages.addMessage("> Calculating {} load for Wastewater Treatment Plants.".format(nutrient))
 
     if not out_agglo:
-        out_agglo = sep.join([out_gdb, project_name + '_{}_WasteWater'.format(nutrient)])
+        out_agglo = sep.join([out_gdb, project_name + '_{}_Wastewater'.format(nutrient)])
 
     arcpy.SpatialJoin_analysis(in_agglo, location, out_agglo,
                                join_operation="JOIN_ONE_TO_ONE", join_type="KEEP_COMMON",
@@ -156,7 +156,7 @@ def wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_
     return out_agglo
 
 
-class WasteWaterV1(object):
+class WastewaterV1(object):
     def __init__(self):
         self.__version__ = '1'
         self.category = 'Sources'
@@ -311,7 +311,7 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
     messages.addMessage("> Calculating {} load for wastewater treatment plants.".format(nutrient))
 
     if not out_wwtp:
-        out_wwtp = sep.join([out_gdb, project_name + '_{}_WasteWater'.format(nutrient)])
+        out_wwtp = sep.join([out_gdb, project_name + '_{}_Wastewater'.format(nutrient)])
 
     arcpy.SpatialJoin_analysis(in_wwtp, location, out_wwtp,
                                join_operation="JOIN_ONE_TO_ONE", join_type="KEEP_COMMON",
