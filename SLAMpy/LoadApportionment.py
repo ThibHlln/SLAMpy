@@ -136,7 +136,7 @@ class LoadApportionmentV3(object):
             datatype="DEFeatureClass",
             parameterType="Required",
             direction="Input",
-            category="Forestry, Peat, and Urban Data Settings")
+            category="Forestry, Peat, and Diffuse Urban Data Settings")
         in_land_cover.value = sep.join([in_gdb, 'clc12_IE'])
 
         in_field = arcpy.Parameter(
@@ -145,7 +145,7 @@ class LoadApportionmentV3(object):
             datatype="Field",
             parameterType="Required",
             direction="Input",
-            category="Forestry, Peat, and Urban Data Settings")
+            category="Forestry, Peat, and Diffuse Urban Data Settings")
         in_field.parameterDependencies = [in_land_cover.name]
         in_field.value = "CODE_12"
 
@@ -155,7 +155,7 @@ class LoadApportionmentV3(object):
             datatype="DETable",
             parameterType="Required",
             direction="Input",
-            category="Forestry, Peat, and Urban Data Settings")
+            category="Forestry, Peat, and Diffuse Urban Data Settings")
         in_factors_n.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Corine_N$'])
 
         in_factors_p = arcpy.Parameter(
@@ -164,7 +164,7 @@ class LoadApportionmentV3(object):
             datatype="DETable",
             parameterType="Required",
             direction="Input",
-            category="Forestry, Peat, and Urban Data Settings")
+            category="Forestry, Peat, and Diffuse Urban Data Settings")
         in_factors_p.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Corine_P$'])
 
         ex_forest = arcpy.Parameter(
@@ -173,7 +173,7 @@ class LoadApportionmentV3(object):
             datatype="DEFeatureClass",
             parameterType="Optional",
             direction="Input",
-            category="Forestry, Peat, and Urban Data Settings")
+            category="Forestry, Peat, and Diffuse Urban Data Settings")
 
         ex_peat = arcpy.Parameter(
             displayName="Existing output for peatlands to use as a substitute to the tool",
@@ -181,7 +181,7 @@ class LoadApportionmentV3(object):
             datatype="DEFeatureClass",
             parameterType="Optional",
             direction="Input",
-            category="Forestry, Peat, and Urban Data Settings")
+            category="Forestry, Peat, and Diffuse Urban Data Settings")
 
         ex_urban = arcpy.Parameter(
             displayName="Existing output for diffuse urban to use as a substitute to the tool",
@@ -189,7 +189,7 @@ class LoadApportionmentV3(object):
             datatype="DEFeatureClass",
             parameterType="Optional",
             direction="Input",
-            category="Forestry, Peat, and Urban Data Settings")
+            category="Forestry, Peat, and Diffuse Urban Data Settings")
 
         # Parameters specific to Industry
         in_ipc = arcpy.Parameter(

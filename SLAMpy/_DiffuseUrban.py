@@ -2,11 +2,11 @@ from os import path, sep
 import arcpy
 
 
-class UrbanV1(object):
+class DiffuseUrbanV1(object):
     def __init__(self):
         self.__version__ = '1'
         self.category = 'Sources'
-        self.label = 'Urban [v{}]'.format(self.__version__)
+        self.label = 'Diffuse Urban [v{}]'.format(self.__version__)
         self.description = "Diffuse nutrient sources from urban areas."
         self.canRunInBackground = False
 
