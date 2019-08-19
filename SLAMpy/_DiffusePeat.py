@@ -71,6 +71,16 @@ class PeatV1(object):
             category="Peat Data Settings")
         in_peat.value = sep.join([in_gdb, 'clc12_IE'])
 
+        in_field = arcpy.Parameter(
+            displayName="Field for Land Cover Code",
+            name="in_field",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input",
+            category="Peat Data Settings")
+        in_field.parameterDependencies = [in_peat.name]
+        in_field.value = "CODE_12"
+
         in_factors_n = arcpy.Parameter(
             displayName="Land Cover Factors for Nitrogen (N)",
             name="in_factors_n",
@@ -91,11 +101,11 @@ class PeatV1(object):
 
         return [out_gdb,
                 project_name, nutrient, region, selection,
-                in_peat, in_factors_n, in_factors_p]
+                in_peat, in_field, in_factors_n, in_factors_p]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, project_name, nutrient, region, selection, in_peat, in_factors_n, in_factors_p = \
+        out_gdb, project_name, nutrient, region, selection, in_peat, in_field, in_factors_n, in_factors_p = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
@@ -113,14 +123,14 @@ class PeatV1(object):
         in_factors = in_factors_n if nutrient == 'N' else in_factors_p
 
         # run geoprocessing function
-        peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors, out_gdb, messages)
+        peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_field, in_factors, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors, out_gdb, messages,
+def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_field, in_factors, out_gdb, messages,
                           out_peat=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
@@ -131,6 +141,8 @@ def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors,
     :type location: str
     :param in_peat: path of the input feature class of the land cover data [required]
     :type in_peat: str
+    :param in_field: name of the field in in_peat to use for the land cover type [required]
+    :type in_field: str
     :param in_factors: path of the input table of the export factors for land cover types [required]
     :type in_factors: str
     :param out_gdb: path of the geodatabase where to store the output feature classes [required]
@@ -145,7 +157,7 @@ def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors,
     messages.addMessage("> Calculating {} load for Peat.".format(nutrient))
 
     arcpy.MakeFeatureLayer_management(in_peat, 'lyrPeat')
-    arcpy.SelectLayerByAttribute_management('lyrPeat', "NEW_SELECTION", "CODE_12 LIKE '41%'")
+    arcpy.SelectLayerByAttribute_management('lyrPeat', "NEW_SELECTION", "{} LIKE '41%'".format(in_field))
 
     if not out_peat:
         out_peat = sep.join([out_gdb, project_name + '_{}_Peat'.format(nutrient)])
@@ -172,7 +184,7 @@ def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_factors,
     arcpy.AddField_management(out_peat, "Peat1calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(out_peat, "Peat1calc",
-                                    expression="factor(!CODE_12!, float(!Area_ha!))",
+                                    expression="factor(!{}!, float(!Area_ha!))".format(in_field),
                                     expression_type="PYTHON_9.3",
                                     code_block=
                                     """def factor(code, area):

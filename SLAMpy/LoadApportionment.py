@@ -139,6 +139,16 @@ class LoadApportionmentV3(object):
             category="Forestry, Peat, and Urban Data Settings")
         in_land_cover.value = sep.join([in_gdb, 'clc12_IE'])
 
+        in_field = arcpy.Parameter(
+            displayName="Field for Land Cover Code",
+            name="in_field",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input",
+            category="Forestry, Peat, and Urban Data Settings")
+        in_field.parameterDependencies = [in_land_cover.name]
+        in_field.value = "CODE_12"
+
         in_factors_n = arcpy.Parameter(
             displayName="Land Cover Factors for Nitrogen (N)",
             name="in_factors_n",
@@ -256,7 +266,7 @@ class LoadApportionmentV3(object):
                 project_name, nutrient, region, selection, field,
                 in_arable, in_pasture, ex_arable, ex_pasture,
                 in_atm_depo, ex_atm_depo,
-                in_land_cover, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban,
+                in_land_cover, in_field, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban,
                 in_ipc, in_sect4, ex_ipc, ex_sect4,
                 in_dwts, ex_dwts,
                 in_agglo, ex_agglo]
@@ -267,7 +277,7 @@ class LoadApportionmentV3(object):
             project_name, nutrient, region, selection, field, \
             in_arable, in_pasture, ex_arable, ex_pasture, \
             in_atm_depo, ex_atm_depo, \
-            in_land_cover, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban, \
+            in_land_cover, in_field, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban, \
             in_ipc, in_sect4, ex_ipc, ex_sect4, \
             in_dwts, ex_dwts, \
             in_agglo, ex_agglo = \
@@ -305,19 +315,22 @@ class LoadApportionmentV3(object):
             out_forest = ex_forest
         else:
             out_forest = \
-                forestry_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_factors, out_gdb, messages)
+                forestry_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_field, in_factors,
+                                          out_gdb, messages)
         if ex_peat:
             messages.addMessage("> Reusing existing data for peatlands.")
             out_peat = ex_peat
         else:
             out_peat = \
-                peat_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_factors, out_gdb, messages)
+                peat_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_field, in_factors,
+                                      out_gdb, messages)
         if ex_urban:
             messages.addMessage("> Reusing existing data for diffuse urban.")
             out_urban = ex_urban
         else:
             out_urban = \
-                urban_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_factors, out_gdb, messages)
+                urban_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_field, in_factors,
+                                       out_gdb, messages)
         if ex_ipc and ex_sect4:
             messages.addMessage("> Reusing existing data for IPC and Section 4 industries.")
             out_ipc, out_sect4 = ex_ipc, ex_sect4
