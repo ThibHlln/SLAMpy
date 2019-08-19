@@ -123,7 +123,7 @@ class DiffuseUrbanV1(object):
         in_factors = in_factors_n if nutrient == 'N' else in_factors_p
 
         # run geoprocessing function
-        urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_factors, out_gdb, messages)
+        urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_field, in_factors, out_gdb, messages)
 
         # garbage collection
         if selection:
