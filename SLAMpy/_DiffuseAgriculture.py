@@ -72,7 +72,7 @@ class AgriV2(object):
 
         # Parameters specific to Diffuse Agriculture
         in_arable = arcpy.Parameter(
-            displayName="CCT Data for Arable",
+            displayName="PIP Maps Data for Arable",
             name="in_arable",
             datatype="DEFeatureClass",
             parameterType="Required",
@@ -81,7 +81,7 @@ class AgriV2(object):
         in_arable.value = sep.join([in_gdb, 'PathwaysCCT_IRL_Arable_LPIS'])
 
         in_pasture = arcpy.Parameter(
-            displayName="CCT Data for Pasture",
+            displayName="PIP Maps Data for Pasture",
             name="in_pasture",
             datatype="DEFeatureClass",
             parameterType="Required",
@@ -270,7 +270,7 @@ class AgriV1(object):
             parameterType="Required",
             direction="Input",
             category="Diffuse Agriculture Data Settings")
-        in_agri.value = sep.join([in_gdb, 'T1991_ED_Agri4'])
+        in_agri.value = sep.join([in_gdb, 'T2010_ED_Agri4'])
 
         in_factors_crop_n = arcpy.Parameter(
             displayName="Crop Factors for Nitrogen (N)",
@@ -291,7 +291,7 @@ class AgriV1(object):
         in_factors_crop_p.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Crop_P$'])
 
         in_factors_livestock_n = arcpy.Parameter(
-            displayName="Crop Factors for Nitrogen (N)",
+            displayName="Livetock Factors for Nitrogen (N)",
             name="in_factors_livestock_n",
             datatype="DETable",
             parameterType="Required",
@@ -300,7 +300,7 @@ class AgriV1(object):
         in_factors_livestock_n.value = sep.join([in_fld, 'LAM_Factors.xlsx', 'Livestock_N$'])
 
         in_factors_livestock_p = arcpy.Parameter(
-            displayName="Crop Factors for Phosphorus (P)",
+            displayName="Livestock Factors for Phosphorus (P)",
             name="in_factors_livestock_p",
             datatype="DETable",
             parameterType="Required",
@@ -402,7 +402,7 @@ def agri_v1_geoprocessing(project_name, nutrient, location, in_agri, in_factors_
     arcpy.AddField_management('lyrArable', "Arab_calc", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management('lyrArable', "Arab_calc",
-                                    expression="(!total_cere! * {} + !other_crop! * {} + !potatoes! * {})* {} / "
+                                    expression="(!total_cere! * {} + !other_crop! * {} + !potatoes! * {}) * {} / "
                                                "!Area_ha!".format(other_cereals, other_crops, potatoes, export_factor),
                                     expression_type="PYTHON_9.3")
 
