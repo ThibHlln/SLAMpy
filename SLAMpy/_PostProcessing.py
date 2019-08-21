@@ -85,7 +85,7 @@ def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
     arcpy.AddField_management(out_summary, "Wastewater", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(out_summary, "Wastewater",
-                                    "!SUM_CSOWast2calc! + !SUM_AggWast2calc!",
+                                    "!SUM_SWOWast2calc! + !SUM_Wast2calc!",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(out_summary, "Industry", "DOUBLE",
