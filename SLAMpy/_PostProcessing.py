@@ -103,7 +103,7 @@ def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
     arcpy.AddField_management(out_summary, "Septic_Tank_Systems", "DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(out_summary, "Septic_Tank_Systems",
-                                    "!SUM_GWSept2calc! + !SUM_Sept2calc!",
+                                    "!SUM_Sept2calc!",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(out_summary, "Pasture", "DOUBLE",
