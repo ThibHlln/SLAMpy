@@ -290,7 +290,7 @@ class LoadApportionmentV3(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 

@@ -82,82 +82,82 @@ def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
     messages.addMessage("> Calculating {} loads totals and sub-totals.".format(nutrient))
 
     # calculate the required totals and sub-totals
-    arcpy.AddField_management(out_summary, "Wastewater", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Wastewater", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Wastewater",
-                                    "!SUM_SWOWast2calc! + !SUM_Wast2calc!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Wastewater",
+                                    expression="!SUM_SWOWast2calc! + !SUM_Wast2calc!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "Industry", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Industry", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Industry",
-                                    "!SUM_IPInd2calc! + !SUM_S4Ind2calc!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Industry",
+                                    expression="!SUM_IPInd2calc! + !SUM_S4Ind2calc!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "Diffuse_Urban", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Diffuse_Urban", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Diffuse_Urban",
-                                    "!SUM_Urb1calc!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Diffuse_Urban",
+                                    expression="!SUM_Urb1calc!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "Septic_Tank_Systems", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Septic_Tank_Systems", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Septic_Tank_Systems",
-                                    "!SUM_Sept2calc!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Septic_Tank_Systems",
+                                    expression="!SUM_Sept2calc!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "Pasture", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Pasture", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Pasture",
-                                    "!SUM_GWPast2calc! + !SUM_Past2calc!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Pasture",
+                                    expression="!SUM_GWPast2calc! + !SUM_Past2calc!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "Arable", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Arable", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Arable",
-                                    "!SUM_GWArab2calc! + !SUM_Arab2calc!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Arable",
+                                    expression="!SUM_GWArab2calc! + !SUM_Arab2calc!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "Forestry", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Forestry", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Forestry",
-                                    "!SUM_For1calc!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Forestry",
+                                    expression="!SUM_For1calc!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "Peatlands", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Peatlands", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Peatlands",
-                                    "!SUM_Peat1calc!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Peatlands",
+                                    expression="!SUM_Peat1calc!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "Lake_Deposition", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Lake_Deposition", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Lake_Deposition",
-                                    "!SUM_Atm2calc!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Lake_Deposition",
+                                    expression="!SUM_Atm2calc!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "TotalDiffuse", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="TotalDiffuse", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "TotalDiffuse",
-                                    "!Diffuse_Urban! + !Pasture! + !Arable! + "
-                                    "!Forestry! + !Peatlands! + !Lake_Deposition!",
+    arcpy.CalculateField_management(in_table=out_summary, field="TotalDiffuse",
+                                    expression="!Diffuse_Urban! + !Pasture! + !Arable! + "
+                                               "!Forestry! + !Peatlands! + !Lake_Deposition!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "TotalPoint", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="TotalPoint", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "TotalPoint",
-                                    "!Wastewater! + !Industry! + !Septic_Tank_Systems!",
+    arcpy.CalculateField_management(in_table=out_summary, field="TotalPoint",
+                                    expression="!Wastewater! + !Industry! + !Septic_Tank_Systems!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "Total", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="Total", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "Total",
-                                    "!TotalDiffuse! + !TotalPoint!",
+    arcpy.CalculateField_management(in_table=out_summary, field="Total",
+                                    expression="!TotalDiffuse! + !TotalPoint!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_summary, "TotalHa", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="TotalHa", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "TotalHa",
+    arcpy.CalculateField_management(in_table=out_summary, field="TotalHa",
                                     expression="value(float(!Total!), float(!AREAKM2!))",
                                     expression_type="PYTHON_9.3",
                                     code_block=
@@ -168,9 +168,9 @@ def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
                                         return total / (area * 100)
                                     """)
 
-    arcpy.AddField_management(out_summary, "PercentGW", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="PercentGW", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "PercentGW",
+    arcpy.CalculateField_management(in_table=out_summary, field="PercentGW",
                                     expression="value(float(!Total!), float(!SUM_GWSept2calc!), "
                                                "float(!SUM_GWPast2calc!), float(!SUM_GWArab2calc!))",
                                     expression_type="PYTHON_9.3",
@@ -182,9 +182,9 @@ def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
                                         return (gw_septic_tanks + gw_pasture + gw_arable) / total * 100
                                     """)
 
-    arcpy.AddField_management(out_summary, "PercentPoint", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="PercentPoint", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "PercentPoint",
+    arcpy.CalculateField_management(in_table=out_summary, field="PercentPoint",
                                     expression="value(float(!Total!), float(!TotalPoint!))",
                                     expression_type="PYTHON_9.3",
                                     code_block=
@@ -195,9 +195,9 @@ def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
                                         return total_point / total * 100
                                     """)
 
-    arcpy.AddField_management(out_summary, "PercentPasture", "DOUBLE",
+    arcpy.AddField_management(in_table=out_summary, field_name="PercentPasture", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_summary, "PercentPasture",
+    arcpy.CalculateField_management(in_table=out_summary, field="PercentPasture",
                                     expression="value(float(!Total!), float(!Pasture!))",
                                     expression_type="PYTHON_9.3",
                                     code_block=

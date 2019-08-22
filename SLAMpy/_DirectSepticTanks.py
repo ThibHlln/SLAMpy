@@ -87,7 +87,7 @@ class SepticV2(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 
@@ -123,19 +123,19 @@ def septic_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, 
     if not out_dwts:
         out_dwts = sep.join([out_gdb, project_name + '_{}_SepticTanks'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, in_dwts], out_dwts,
+    arcpy.Intersect_analysis(in_features=[location, in_dwts], out_feature_class=out_dwts,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_dwts, "GWSept2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_dwts, field_name="GWSept2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_dwts, "GWSept2calc",
-                                    "!GW_{}_2c!".format(nutrient),
+    arcpy.CalculateField_management(in_table=out_dwts, field="GWSept2calc",
+                                    expression="!GW_{}_2c!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_dwts, "Sept2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_dwts, field_name="Sept2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_dwts, "Sept2calc",
-                                    "!Total_{}_2c!".format(nutrient),
+    arcpy.CalculateField_management(in_table=out_dwts, field="Sept2calc",
+                                    expression="!Total_{}_2c!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
     return out_dwts

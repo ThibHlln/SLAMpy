@@ -115,7 +115,7 @@ class PeatV1(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 
@@ -156,18 +156,21 @@ def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_field, i
     # calculate load for peat
     messages.addMessage("> Calculating {} load for Peat.".format(nutrient))
 
-    arcpy.MakeFeatureLayer_management(in_peat, 'lyrPeat')
-    arcpy.SelectLayerByAttribute_management('lyrPeat', "NEW_SELECTION", "{} LIKE '41%'".format(in_field))
+    arcpy.MakeFeatureLayer_management(in_features=in_peat, out_layer='lyrPeat')
+    arcpy.SelectLayerByAttribute_management(in_layer_or_view='lyrPeat',
+                                            selection_type="NEW_SELECTION",
+                                            where_clause="{} LIKE '41%'".format(in_field))
 
     if not out_peat:
         out_peat = sep.join([out_gdb, project_name + '_{}_Peat'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, 'lyrPeat'], out_peat,
+    arcpy.Intersect_analysis(in_features=[location, 'lyrPeat'], out_feature_class=out_peat,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_peat, "Area_ha", "DOUBLE",
+    arcpy.AddField_management(in_table=out_peat, field_name="Area_ha", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_peat, "Area_ha", "!shape.area@hectares!",
+    arcpy.CalculateField_management(in_table=out_peat, field="Area_ha",
+                                    expression="!shape.area@hectares!",
                                     expression_type="PYTHON_9.3")
 
     c411, c412 = None, None
@@ -181,9 +184,9 @@ def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_field, i
     if not found:
         raise Exception('Factors for {} are not available in {}'.format(nutrient, in_factors))
 
-    arcpy.AddField_management(out_peat, "Peat1calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_peat, field_name="Peat1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_peat, "Peat1calc",
+    arcpy.CalculateField_management(in_table=out_peat, field="Peat1calc",
                                     expression="factor(!{}!, float(!Area_ha!))".format(in_field),
                                     expression_type="PYTHON_9.3",
                                     code_block=

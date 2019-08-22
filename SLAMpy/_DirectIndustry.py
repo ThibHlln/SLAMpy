@@ -96,7 +96,7 @@ class IndustryV2(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 
@@ -136,13 +136,13 @@ def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4
     if not out_ipc:
         out_ipc = sep.join([out_gdb, project_name + '_{}_IndustryIPC'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, in_ipc], out_ipc,
+    arcpy.Intersect_analysis(in_features=[location, in_ipc], out_feature_class=out_ipc,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_ipc, "IPInd2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_ipc, field_name="IPInd2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_ipc, "IPInd2calc",
-                                    "!{}_2012_LAM!".format(nutrient),
+    arcpy.CalculateField_management(in_table=out_ipc, field="IPInd2calc",
+                                    expression="!{}_2012_LAM!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
     # calculate load for Section 4 licences
@@ -151,12 +151,12 @@ def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4
     if not out_sect4:
         out_sect4 = sep.join([out_gdb, project_name + '_{}_IndustrySect4'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, in_sect4], out_sect4,
+    arcpy.Intersect_analysis(in_features=[location, in_sect4], out_feature_class=out_sect4,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_sect4, "Sect4_Flow", "DOUBLE",
+    arcpy.AddField_management(in_table=out_sect4, field_name="Sect4_Flow", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_sect4, "Sect4_Flow",
+    arcpy.CalculateField_management(in_table=out_sect4, field="Sect4_Flow",
                                     expression="flow(float(!Flow__m3_d!), float(!Discharge_!))",
                                     expression_type="PYTHON_9.3",
                                     code_block=
@@ -167,9 +167,9 @@ def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4
                                         return discharge
                                     """)
 
-    arcpy.AddField_management(out_sect4, "Sect4_ELV", "DOUBLE",
+    arcpy.AddField_management(in_table=out_sect4, field_name="Sect4_ELV", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_sect4, "Sect4_ELV",
+    arcpy.CalculateField_management(in_table=out_sect4, field="Sect4_ELV",
                                     expression="elv(float(!TON_ELV!), float(!TN_ELV!), float(!NO3_ELV!), "
                                                "float(!NH3_ELV!), float(!NH4_ELV!), float(!NO2_ELV!), "
                                                "float(!TP_ELV!), float(!PO4_ELV!))",
@@ -183,9 +183,9 @@ def industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4
                                         return float(max([tp, po4]))
                                     """.format(nutrient))
 
-    arcpy.AddField_management(out_sect4, "S4Ind2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_sect4, field_name="S4Ind2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_sect4, "S4Ind2calc",
+    arcpy.CalculateField_management(in_table=out_sect4, field="S4Ind2calc",
                                     expression="!Sect4_ELV! * 0.25 * !Sect4_Flow! * 0.365",
                                     expression_type="PYTHON_9.3")
 

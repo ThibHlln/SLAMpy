@@ -87,7 +87,7 @@ class AtmosV2(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 
@@ -123,24 +123,25 @@ def atmos_v2_geoprocessing(project_name, nutrient, location, in_atm_depo, out_gd
     if not out_atm_depo:
         out_atm_depo = sep.join([out_gdb, project_name + '_{}_AtmDepo'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, in_atm_depo], out_atm_depo,
+    arcpy.Intersect_analysis(in_features=[location, in_atm_depo], out_feature_class=out_atm_depo,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_atm_depo, "Area_ha", "DOUBLE",
+    arcpy.AddField_management(in_table=out_atm_depo, field_name="Area_ha", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_atm_depo, "Area_ha", "!shape.area@hectares!",
+    arcpy.CalculateField_management(in_table=out_atm_depo, field="Area_ha",
+                                    expression="!shape.area@hectares!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_atm_depo, "AtmRate", "DOUBLE",
+    arcpy.AddField_management(in_table=out_atm_depo, field_name="AtmRate", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_atm_depo, "AtmRate",
-                                    "!{}_Dep_tot!".format(nutrient),
+    arcpy.CalculateField_management(in_table=out_atm_depo, field="AtmRate",
+                                    expression="!{}_Dep_tot!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_atm_depo, "Atm2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_atm_depo, field_name="Atm2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_atm_depo, "Atm2calc",
-                                    "!AtmRate! * !Area_ha!".format(nutrient),
+    arcpy.CalculateField_management(in_table=out_atm_depo, field="Atm2calc",
+                                    expression="!AtmRate! * !Area_ha!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
     return out_atm_depo

@@ -92,7 +92,7 @@ class WastewaterV2(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 
@@ -128,20 +128,20 @@ def wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_
     if not out_agglo:
         out_agglo = sep.join([out_gdb, project_name + '_{}_Wastewater'.format(nutrient)])
 
-    arcpy.SpatialJoin_analysis(in_agglo, location, out_agglo,
+    arcpy.SpatialJoin_analysis(target_features=in_agglo, join_features=location, out_feature_class=out_agglo,
                                join_operation="JOIN_ONE_TO_ONE", join_type="KEEP_COMMON",
                                match_option='CLOSEST', search_radius='2000 Meters')
 
-    arcpy.AddField_management(out_agglo, "SWOWast2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_agglo, field_name="SWOWast2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_agglo, "SWOWast2calc",
-                                    "!T{}_SWO!".format(nutrient),
+    arcpy.CalculateField_management(in_table=out_agglo, field="SWOWast2calc",
+                                    expression="!T{}_SWO!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_agglo, "Wast2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_agglo, field_name="Wast2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_agglo, "Wast2calc",
-                                    "!PointT{}!".format(nutrient),
+    arcpy.CalculateField_management(in_table=out_agglo, field="Wast2calc",
+                                    expression="!PointT{}!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
     return out_agglo
@@ -254,7 +254,7 @@ class WastewaterV1(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 
@@ -295,15 +295,15 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
     if not out_wwtp:
         out_wwtp = sep.join([out_gdb, project_name + '_{}_Wastewater'.format(nutrient)])
 
-    arcpy.SpatialJoin_analysis(in_wwtp, location, out_wwtp,
+    arcpy.SpatialJoin_analysis(target_features=in_wwtp, join_features=location, out_feature_class=out_wwtp,
                                join_operation="JOIN_ONE_TO_ONE", join_type="KEEP_COMMON",
                                match_option='CLOSEST', search_radius='2000 Meters')
 
-    arcpy.DeleteIdentical_management(out_wwtp, "RegCD", z_tolerance="0")
+    arcpy.DeleteIdentical_management(in_dataset=out_wwtp, fields="RegCD", z_tolerance="0")
 
-    arcpy.AddField_management(out_wwtp, "PE_calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_wwtp, field_name="PE_calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "PE_calc",
+    arcpy.CalculateField_management(in_table=out_wwtp, field="PE_calc",
                                     expression="factor(float(!AER14_PE!), float(!LEMA_PE!))",
                                     expression_type="PYTHON_9.3",
                                     code_block=
@@ -331,9 +331,9 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
     if not found:
         raise Exception('Factors for {} are not available in {}'.format(nutrient, in_factors_wwtp))
 
-    arcpy.AddField_management(out_wwtp, "Treat_Fact", "DOUBLE",
+    arcpy.AddField_management(in_table=out_wwtp, field_name="Treat_Fact", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "Treat_Fact",
+    arcpy.CalculateField_management(in_table=out_wwtp, field="Treat_Fact",
                                     expression="factor(!TreatmentL!)",
                                     expression_type="PYTHON_9.3",
                                     code_block=
@@ -358,9 +358,9 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
                                         return {}
                                     """.format(raw, prelim, primary, second, tertN, tertNP, tertP, second, primary))
 
-    arcpy.AddField_management(out_wwtp, "PEqWast1calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_wwtp, field_name="PEqWast1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "PEqWast1calc",
+    arcpy.CalculateField_management(in_table=out_wwtp, field="PEqWast1calc",
                                     expression="value(float(!{}_WWTP_AER!), float(!PE_calc!), "
                                                "float(!Treat_Fact!))".format(nutrient),
                                     expression_type="PYTHON_9.3",
@@ -372,9 +372,9 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
                                         return pe_calc * treat_fact *({} * 365 / 1000)
                                     """.format(POPfactor))
 
-    arcpy.AddField_management(out_wwtp, "PEqSWOWast1calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_wwtp, field_name="PEqSWOWast1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "PEqSWOWast1calc",
+    arcpy.CalculateField_management(in_table=out_wwtp, field="PEqSWOWast1calc",
                                     expression="value(float(!{}_SWO_AER!), float(!PE!), "
                                                "float(!LOSS_perce!))".format(nutrient),
                                     expression_type="PYTHON_9.3",
@@ -386,14 +386,14 @@ def wastewater_v1_geoprocessing(project_name, nutrient, location, in_wwtp, in_fa
                                         return 0
                                     """.format(POPfactor))
 
-    arcpy.AddField_management(out_wwtp, "AERWast1calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_wwtp, field_name="AERWast1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "AERWast1calc",
-                                    "!{}_WWTP_AER!".format(nutrient),
+    arcpy.CalculateField_management(in_table=out_wwtp, field="AERWast1calc",
+                                    expression="!{}_WWTP_AER!".format(nutrient),
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_wwtp, "AERSWOWast1calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_wwtp, field_name="AERSWOWast1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_wwtp, "AERSWOWast1calc",
-                                    "!{}_SWO_AER!".format(nutrient),
+    arcpy.CalculateField_management(in_table=out_wwtp, field="AERSWOWast1calc",
+                                    expression="!{}_SWO_AER!".format(nutrient),
                                     expression_type="PYTHON_9.3")

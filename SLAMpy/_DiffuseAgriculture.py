@@ -96,7 +96,7 @@ class AgriV2(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 
@@ -136,24 +136,25 @@ def agri_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pastur
     if not out_arable:
         out_arable = sep.join([out_gdb, project_name + '_{}_Arable'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, in_arable], out_arable,
+    arcpy.Intersect_analysis(in_features=[location, in_arable], out_feature_class=out_arable,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_arable, "Area_ha", "DOUBLE",
+    arcpy.AddField_management(in_table=out_arable, field_name="Area_ha", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_arable, "Area_ha", "!shape.area@hectares!",
+    arcpy.CalculateField_management(in_table=out_arable, field="Area_ha",
+                                    expression="!shape.area@hectares!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_arable, "GWArab2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_arable, field_name="GWArab2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_arable, "GWArab2calc",
-                                    "!{}SwFromGw! * !Area_ha!".format(nutrient.lower()),
+    arcpy.CalculateField_management(in_table=out_arable, field="GWArab2calc",
+                                    expression="!{}SwFromGw! * !Area_ha!".format(nutrient.lower()),
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_arable, "Arab2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_arable, field_name="Arab2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_arable, "Arab2calc",
-                                    "!{}TotaltoSWreceptor! * !Area_ha!".format(nutrient.lower()),
+    arcpy.CalculateField_management(in_table=out_arable, field="Arab2calc",
+                                    expression="!{}TotaltoSWreceptor! * !Area_ha!".format(nutrient.lower()),
                                     expression_type="PYTHON_9.3")
 
     # calculate load for pasture
@@ -162,24 +163,25 @@ def agri_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pastur
     if not out_pasture:
         out_pasture = sep.join([out_gdb, project_name + '_{}_Pasture'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, in_pasture], out_pasture,
+    arcpy.Intersect_analysis(in_features=[location, in_pasture], out_feature_class=out_pasture,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_pasture, "Area_ha", "DOUBLE",
+    arcpy.AddField_management(in_table=out_pasture, field_name="Area_ha", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_pasture, "Area_ha", "!shape.area@hectares!",
+    arcpy.CalculateField_management(in_table=out_pasture, field="Area_ha",
+                                    expression="!shape.area@hectares!",
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_pasture, "GWPast2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_pasture, field_name="GWPast2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_pasture, "GWPast2calc",
-                                    "!{}SwFromGw! * !Area_ha!".format(nutrient.lower()),
+    arcpy.CalculateField_management(in_table=out_pasture, field="GWPast2calc",
+                                    expression="!{}SwFromGw! * !Area_ha!".format(nutrient.lower()),
                                     expression_type="PYTHON_9.3")
 
-    arcpy.AddField_management(out_pasture, "Past2calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_pasture, field_name="Past2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_pasture, "Past2calc",
-                                    "!{}TotaltoSWreceptor! * !Area_ha!".format(nutrient.lower()),
+    arcpy.CalculateField_management(in_table=out_pasture, field="Past2calc",
+                                    expression="!{}TotaltoSWreceptor! * !Area_ha!".format(nutrient.lower()),
                                     expression_type="PYTHON_9.3")
 
     return out_arable, out_pasture
@@ -306,7 +308,7 @@ class AgriV1(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 
@@ -351,11 +353,12 @@ def agri_v1_geoprocessing(project_name, nutrient, location, in_agri, in_factors_
     # calculate load for arable
     messages.addMessage("> Calculating {} load for Arable.".format(nutrient))
 
-    arcpy.MakeFeatureLayer_management(in_agri, 'lyrArable')
+    arcpy.MakeFeatureLayer_management(in_features=in_agri, out_layer='lyrArable')
 
-    arcpy.AddField_management('lyrArable', "Area_ha", "DOUBLE",
+    arcpy.AddField_management(in_table='lyrArable', field_name="Area_ha", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management('lyrArable', "Area_ha", "!shape.area@hectares!",
+    arcpy.CalculateField_management(in_table='lyrArable', field="Area_ha",
+                                    expression="!shape.area@hectares!",
                                     expression_type="PYTHON_9.3")
 
     winter_wheat, spring_wheat, winter_barley, spring_barley, winter_oats, spring_oats, potatoes, \
@@ -381,9 +384,9 @@ def agri_v1_geoprocessing(project_name, nutrient, location, in_agri, in_factors_
     if not found:
         raise Exception('Factors for {} are not available in {}'.format(nutrient, in_factors_crop))
 
-    arcpy.AddField_management('lyrArable', "Arab_calc", "DOUBLE",
+    arcpy.AddField_management(in_table='lyrArable', field_name="Arab_calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management('lyrArable', "Arab_calc",
+    arcpy.CalculateField_management(in_table='lyrArable', field="Arab_calc",
                                     expression="(!total_cere! * {} + !other_crop! * {} + !potatoes! * {}) * {} / "
                                                "!Area_ha!".format(other_cereals, other_crops, potatoes, export_factor),
                                     expression_type="PYTHON_9.3")
@@ -391,26 +394,28 @@ def agri_v1_geoprocessing(project_name, nutrient, location, in_agri, in_factors_
     if not out_arable:
         out_arable = sep.join([out_gdb, project_name + '_{}_Arable'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, 'lyrArable'], out_arable,
+    arcpy.Intersect_analysis(in_features=[location, 'lyrArable'], out_feature_class=out_arable,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_arable, "Area_ha2", "DOUBLE",
+    arcpy.AddField_management(in_table=out_arable, field_name="Area_ha2", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_arable, "Area_ha2",
+    arcpy.CalculateField_management(in_table=out_arable, field="Area_ha2",
                                     expression="!shape.area@hectares!", expression_type="PYTHON_9.3")
-    arcpy.AddField_management(out_arable, "Arab1calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_arable, field_name="Arab1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_arable, "Arab1calc",
-                                    expression="!Arab_calc! * !Area_ha2!", expression_type="PYTHON_9.3")
+    arcpy.CalculateField_management(in_table=out_arable, field="Arab1calc",
+                                    expression="!Arab_calc! * !Area_ha2!",
+                                    expression_type="PYTHON_9.3")
 
     # calculate load for pasture
     messages.addMessage("> Calculating {} load for Pasture.".format(nutrient))
 
-    arcpy.MakeFeatureLayer_management(in_agri, 'lyrPasture')
+    arcpy.MakeFeatureLayer_management(in_features=in_agri, out_layer='lyrPasture')
 
-    arcpy.AddField_management('lyrPasture', "Area_ha", "DOUBLE",
+    arcpy.AddField_management(in_table='lyrPasture', field_name="Area_ha", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management('lyrPasture', "Area_ha", "!shape.area@hectares!",
+    arcpy.CalculateField_management(in_table='lyrPasture', field="Area_ha",
+                                    expression="!shape.area@hectares!",
                                     expression_type="PYTHON_9.3")
 
     dairy_cows, bulls, other_cattle, cattle_m_1, cattle_m_2, cattle_m_3, cattle_m_4, total_sheep, export_factor, \
@@ -433,9 +438,9 @@ def agri_v1_geoprocessing(project_name, nutrient, location, in_agri, in_factors_
     if not found:
         raise Exception('Factors for {} are not available in {}'.format(nutrient, in_factors_livestock))
 
-    arcpy.AddField_management('lyrPasture', "Past_calc", "DOUBLE",
+    arcpy.AddField_management(in_table='lyrPasture', field_name="Past_calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management('lyrPasture', "Past_calc",
+    arcpy.CalculateField_management(in_table='lyrPasture', field="Past_calc",
                                     expression="{} * (!bulls! * {} + !dairy_cows! * {} + "
                                                "!suckler_co! * {} + (!cattle_m_1! + !cattle_f_1!) * {} + "
                                                "(!cattle_m_2! + !cattle_f_2!) * {} + "
@@ -457,16 +462,19 @@ def agri_v1_geoprocessing(project_name, nutrient, location, in_agri, in_factors_
     if not out_pasture:
         out_pasture = sep.join([out_gdb, project_name + '_{}_Pasture'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, 'lyrPasture'], out_pasture,
+    arcpy.Intersect_analysis(in_features=[location, 'lyrPasture'], out_feature_class=out_pasture,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_pasture, "Area_ha2", "DOUBLE",
+    arcpy.AddField_management(in_table=out_pasture, field_name="Area_ha2", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_pasture, "Area_ha2",
-                                    expression="!shape.area@hectares!", expression_type="PYTHON_9.3")
-    arcpy.AddField_management(out_pasture, "Past1calc", "DOUBLE",
+    arcpy.CalculateField_management(in_table=out_pasture, field="Area_ha2",
+                                    expression="!shape.area@hectares!",
+                                    expression_type="PYTHON_9.3")
+
+    arcpy.AddField_management(in_table=out_pasture, field_name="Past1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_pasture, "Past1calc",
-                                    expression="!Past_calc! * !Area_ha2!", expression_type="PYTHON_9.3")
+    arcpy.CalculateField_management(in_table=out_pasture, field="Past1calc",
+                                    expression="!Past_calc! * !Area_ha2!",
+                                    expression_type="PYTHON_9.3")
 
     return out_arable, out_pasture

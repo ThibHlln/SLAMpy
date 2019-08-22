@@ -115,7 +115,7 @@ class ForestryV1(object):
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
             location = sep.join([out_gdb, project_name + '_SelectedRegion'])
-            arcpy.Select_analysis(region, location, selection)
+            arcpy.Select_analysis(in_features=region, out_feature_class=location, where_clause=selection)
         else:
             location = region
 
@@ -155,18 +155,21 @@ def forestry_v1_geoprocessing(project_name, nutrient, location, in_forest, in_fi
     # calculate load for forestry
     messages.addMessage("> Calculating {} load for Forestry.".format(nutrient))
 
-    arcpy.MakeFeatureLayer_management(in_forest, 'lyrForestry')
-    arcpy.SelectLayerByAttribute_management('lyrForestry', "NEW_SELECTION", "{} LIKE '3%'".format(in_field))
+    arcpy.MakeFeatureLayer_management(in_features=in_forest, out_layer='lyrForestry')
+    arcpy.SelectLayerByAttribute_management(in_layer_or_view='lyrForestry',
+                                            selection_type="NEW_SELECTION",
+                                            where_clause="{} LIKE '3%'".format(in_field))
 
     if not out_forest:
         out_forest = sep.join([out_gdb, project_name + '_{}_Forestry'.format(nutrient)])
 
-    arcpy.Intersect_analysis([location, 'lyrForestry'], out_forest,
+    arcpy.Intersect_analysis(in_features=[location, 'lyrForestry'], out_feature_class=out_forest,
                              join_attributes="ALL", output_type="INPUT")
 
-    arcpy.AddField_management(out_forest, "Area_ha", "DOUBLE",
+    arcpy.AddField_management(in_table=out_forest, field_name="Area_ha", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_forest, "Area_ha", "!shape.area@hectares!",
+    arcpy.CalculateField_management(in_table=out_forest, field="Area_ha",
+                                    expression="!shape.area@hectares!",
                                     expression_type="PYTHON_9.3")
 
     c311, c312, c313, c324 = None, None, None, None
@@ -182,9 +185,9 @@ def forestry_v1_geoprocessing(project_name, nutrient, location, in_forest, in_fi
     if not found:
         raise Exception('Factors for {} are not available in {}'.format(nutrient, in_factors))
 
-    arcpy.AddField_management(out_forest, "For1calc", "DOUBLE",
+    arcpy.AddField_management(in_table=out_forest, field_name="For1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
-    arcpy.CalculateField_management(out_forest, "For1calc",
+    arcpy.CalculateField_management(in_table=out_forest, field="For1calc",
                                     expression="factor(!{}!, float(!Area_ha!))".format(in_field),
                                     expression_type="PYTHON_9.3",
                                     code_block=
