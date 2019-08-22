@@ -85,55 +85,59 @@ def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
     arcpy.AddField_management(in_table=out_summary, field_name="Wastewater", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="Wastewater",
-                                    expression="!SUM_SWOWast2calc! + !SUM_Wast2calc!",
+                                    expression="!SUM_SWOWast2calc! if !SUM_SWOWast2calc! is not None else 0 + "
+                                               "!SUM_Wast2calc! if !SUM_Wast2calc! is not None else 0",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_summary, field_name="Industry", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="Industry",
-                                    expression="!SUM_IPInd2calc! + !SUM_S4Ind2calc!",
+                                    expression="!SUM_IPInd2calc! if !SUM_IPInd2calc! is not None else 0 + "
+                                               "!SUM_S4Ind2calc! if !SUM_S4Ind2calc! is not None else 0",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_summary, field_name="Diffuse_Urban", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="Diffuse_Urban",
-                                    expression="!SUM_Urb1calc!",
+                                    expression="!SUM_Urb1calc! if !SUM_Urb1calc! is not None else 0",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_summary, field_name="Septic_Tank_Systems", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="Septic_Tank_Systems",
-                                    expression="!SUM_Sept2calc!",
+                                    expression="!SUM_Sept2calc! if !SUM_Sept2calc! is not None else 0",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_summary, field_name="Pasture", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="Pasture",
-                                    expression="!SUM_GWPast2calc! + !SUM_Past2calc!",
+                                    expression="!SUM_GWPast2calc! if !SUM_GWPast2calc! is not None else 0 + "
+                                               "!SUM_Past2calc! if !SUM_Past2calc! is not None else 0",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_summary, field_name="Arable", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="Arable",
-                                    expression="!SUM_GWArab2calc! + !SUM_Arab2calc!",
+                                    expression="!SUM_GWArab2calc! if !SUM_GWArab2calc! is not None else 0 + "
+                                               "!SUM_Arab2calc! if !SUM_Arab2calc! is not None else 0",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_summary, field_name="Forestry", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="Forestry",
-                                    expression="!SUM_For1calc!",
+                                    expression="!SUM_For1calc! if !SUM_For1calc! is not None else 0",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_summary, field_name="Peatlands", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="Peatlands",
-                                    expression="!SUM_Peat1calc!",
+                                    expression="!SUM_Peat1calc! if !SUM_Peat1calc! is not None else 0",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_summary, field_name="Lake_Deposition", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="Lake_Deposition",
-                                    expression="!SUM_Atm2calc!",
+                                    expression="!SUM_Atm2calc! if !SUM_Atm2calc! is not None else 0",
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_summary, field_name="TotalDiffuse", field_type="DOUBLE",
@@ -171,8 +175,10 @@ def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
     arcpy.AddField_management(in_table=out_summary, field_name="PercentGW", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_summary, field="PercentGW",
-                                    expression="value(float(!Total!), float(!SUM_GWSept2calc!), "
-                                               "float(!SUM_GWPast2calc!), float(!SUM_GWArab2calc!))",
+                                    expression="value(float(!Total!), "
+                                               "float(!SUM_GWSept2calc! if !SUM_GWSept2calc! is not None else 0), "
+                                               "float(!SUM_GWPast2calc! if !SUM_GWPast2calc! is not None else 0), "
+                                               "float(!SUM_GWArab2calc! if !SUM_GWArab2calc! is not None else 0))",
                                     expression_type="PYTHON_9.3",
                                     code_block=
                                     """def value(total, gw_septic_tanks, gw_pasture, gw_arable):
