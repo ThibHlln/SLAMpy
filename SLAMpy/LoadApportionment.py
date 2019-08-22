@@ -396,7 +396,7 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
                               statistics_fields=[["GWSept2calc", "SUM"], ["Sept2calc", "SUM"]], case_field=field)
 
     arcpy.Statistics_analysis(in_table=out_agglo, out_table=out_agglo + '_stats',
-                              statistics_fields=[["CSOWast2calc", "SUM"], ["AggWast2calc", "SUM"]], case_field=field)
+                              statistics_fields=[["SWOWast2calc", "SUM"], ["Wast2calc", "SUM"]], case_field=field)
 
     # copy the input region or sub-region into the output gdb to store the results in
     messages.addMessage("> Creating output feature class to store load apportionment for {}.".format(nutrient))
