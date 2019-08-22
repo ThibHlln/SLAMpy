@@ -445,7 +445,7 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
 
     arcpy.JoinField_management(in_data=out_summary, in_field=field,
                                join_table=out_agglo + '_stats', join_field=field,
-                               fields=["SUM_CSOWast2calc", "SUM_AggWast2calc"])
+                               fields=["SUM_SWOWast2calc", "SUM_Wast2calc"])
 
     # garbage collection of the summary stats feature classes created for each individual source load
     for source in [out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
