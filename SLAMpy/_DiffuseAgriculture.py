@@ -131,7 +131,7 @@ def agri_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pastur
     :type out_pasture: str
     """
     # calculate load for arable
-    messages.addMessage("> Calculating {} load for arable.".format(nutrient))
+    messages.addMessage("> Calculating {} load for Arable.".format(nutrient))
 
     if not out_arable:
         out_arable = sep.join([out_gdb, project_name + '_{}_Arable'.format(nutrient)])
@@ -158,7 +158,7 @@ def agri_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pastur
                                     expression_type="PYTHON_9.3")
 
     # calculate load for pasture
-    messages.addMessage("> Calculating {} load for pasture.".format(nutrient))
+    messages.addMessage("> Calculating {} load for Pasture.".format(nutrient))
 
     if not out_pasture:
         out_pasture = sep.join([out_gdb, project_name + '_{}_Pasture'.format(nutrient)])
