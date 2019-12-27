@@ -1,14 +1,14 @@
 import arcpy
-from LoadApportionment import LoadApportionmentV3
-from _DiffuseAgriculture import AgriV2, AgriV1
-from _DiffuseAtmDepo import AtmosV2
-from _DiffuseForestry import ForestryV1
-from _DiffusePeat import PeatV1
-from _DiffuseUrban import DiffuseUrbanV1
-from _DirectIndustry import IndustryV2
-from _DirectSepticTanks import SepticV2
-from _DirectWastewater import WastewaterV2, WastewaterV1
-from _PostProcessing import PostProcessingV3
+from _load_apportionment import LoadApportionmentV3
+from _diffuse_agriculture import AgriV2, AgriV1
+from _diffuse_atm_depo import AtmosV2
+from _diffuse_forestry import ForestryV1
+from _diffuse_peat import PeatV1
+from _diffuse_urban import DiffuseUrbanV1
+from _direct_industry import IndustryV2
+from _direct_septic_tanks import SepticV2
+from _direct_wastewater import WastewaterV2, WastewaterV1
+from _post_processing import PostProcessingV3
 arcpy.env.overwriteOutput = True
 
 

@@ -1,13 +1,13 @@
 from os import path, sep
 import arcpy
-from _DiffuseAgriculture import agri_v2_geoprocessing
-from _DiffuseAtmDepo import atmos_v2_geoprocessing
-from _DiffuseForestry import forestry_v1_geoprocessing
-from _DiffusePeat import peat_v1_geoprocessing
-from _DiffuseUrban import urban_v1_geoprocessing
-from _DirectIndustry import industry_v2_geoprocessing
-from _DirectSepticTanks import septic_v2_geoprocessing
-from _DirectWastewater import wastewater_v2_geoprocessing
+from _diffuse_agriculture import agri_v2_geoprocessing
+from _diffuse_atm_depo import atmos_v2_geoprocessing
+from _diffuse_forestry import forestry_v1_geoprocessing
+from _diffuse_peat import peat_v1_geoprocessing
+from _diffuse_urban import urban_v1_geoprocessing
+from _direct_industry import industry_v2_geoprocessing
+from _direct_septic_tanks import septic_v2_geoprocessing
+from _direct_wastewater import wastewater_v2_geoprocessing
 
 
 class LoadApportionmentV3(object):
