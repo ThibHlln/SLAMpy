@@ -1,5 +1,6 @@
 from os import path, sep
 import arcpy
+
 from _diffuse_agriculture import agri_v2_geoprocessing
 from _diffuse_atm_depo import atmos_v2_geoprocessing
 from _diffuse_forestry import forestry_v1_geoprocessing
@@ -274,7 +275,7 @@ class LoadApportionmentV3(object):
     def execute(self, parameters, messages):
         # retrieve parameters
         out_gdb, \
-            project_name, nutrient, region, selection, field, \
+            project_name, nutrient, region, selection, sort_field, \
             in_arable, in_pasture, ex_arable, ex_pasture, \
             in_atm_depo, ex_atm_depo, \
             in_land_cover, in_field, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban, \
@@ -286,6 +287,9 @@ class LoadApportionmentV3(object):
         # determine which nutrient to work on
         nutrient = 'N' if nutrient == 'Nitrogen (N)' else 'P'
 
+        # determine which factors to use
+        in_factors = in_factors_n if nutrient == 'N' else in_factors_p
+
         # determine which location to work on
         if selection:  # i.e. selection requested
             messages.addMessage("> Selecting requested Location(s) within Region.")
@@ -294,78 +298,99 @@ class LoadApportionmentV3(object):
         else:
             location = region
 
-        # determine which factors to use
-        in_factors = in_factors_n if nutrient == 'N' else in_factors_p
-
         # run geoprocessing functions for each source load
-        if ex_arable and ex_pasture:
-            messages.addMessage("> Reusing existing data for arable and pasture.")
-            out_arable, out_pasture = ex_arable, ex_pasture
-        else:
-            out_arable, out_pasture = \
-                agri_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
-        if ex_atm_depo:
-            messages.addMessage("> Reusing existing data for atmospheric deposition.")
-            out_atm_depo = ex_atm_depo
-        else:
-            out_atm_depo = \
-                atmos_v2_geoprocessing(project_name, nutrient, location, in_atm_depo, out_gdb, messages)
-        if ex_forest:
-            messages.addMessage("> Reusing existing data for forestry.")
-            out_forest = ex_forest
-        else:
-            out_forest = \
-                forestry_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_field, in_factors,
-                                          out_gdb, messages)
-        if ex_peat:
-            messages.addMessage("> Reusing existing data for peatlands.")
-            out_peat = ex_peat
-        else:
-            out_peat = \
-                peat_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_field, in_factors,
-                                      out_gdb, messages)
-        if ex_urban:
-            messages.addMessage("> Reusing existing data for diffuse urban.")
-            out_urban = ex_urban
-        else:
-            out_urban = \
-                urban_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_field, in_factors,
-                                       out_gdb, messages)
-        if ex_ipc and ex_sect4:
-            messages.addMessage("> Reusing existing data for IPC and Section 4 industries.")
-            out_ipc, out_sect4 = ex_ipc, ex_sect4
-        else:
-            out_ipc, out_sect4 = \
-                industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4, out_gdb, messages)
-        if ex_dwts:
-            messages.addMessage("> Reusing existing data for septic tanks.")
-            out_dwts = ex_dwts
-        else:
-            out_dwts = \
-                septic_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
-        if ex_agglo:
-            messages.addMessage("> Reusing existing data for WWTPs.")
-            out_agglo = ex_agglo
-        else:
-            out_agglo = \
-                wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
+        (out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
+            out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v3_geoprocessing(
+                project_name, nutrient, location, in_field,
+                in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
+                in_ipc, in_sect4, in_dwts, in_agglo,
+                ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
+                ex_ipc, ex_sect4, ex_dwts, ex_agglo,
+                out_gdb, messages)
 
-        # run geoprocessing function for load apportionment
-        load_apportionment_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
-                                            out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
-                                            out_ipc, out_sect4, out_dwts, out_agglo,
-                                            messages)
+        # run geoprocessing functions for load apportionment
+        load_apportionment_v3_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
+                                                out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
+                                                out_ipc, out_sect4, out_dwts, out_agglo,
+                                                messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field, out_gdb,
-                                        out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
-                                        out_ipc, out_sect4, out_dwts, out_agglo,
-                                        messages,
-                                        out_summary=None):
+def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
+                                        in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
+                                        in_ipc, in_sect4, in_dwts, in_agglo,
+                                        ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
+                                        ex_ipc, ex_sect4, ex_dwts, ex_agglo,
+                                        out_gdb,
+                                        messages):
+
+    # for each source load, reuse existing values if provided, otherwise run the appropriate geoprocessing function
+    if ex_arable and ex_pasture:
+        messages.addMessage("> Reusing existing data for arable and pasture.")
+        out_arable, out_pasture = ex_arable, ex_pasture
+    else:
+        out_arable, out_pasture = \
+            agri_v2_geoprocessing(project_name, nutrient, location, in_arable, in_pasture, out_gdb, messages)
+    if ex_atm_depo:
+        messages.addMessage("> Reusing existing data for atmospheric deposition.")
+        out_atm_depo = ex_atm_depo
+    else:
+        out_atm_depo = \
+            atmos_v2_geoprocessing(project_name, nutrient, location, in_atm_depo, out_gdb, messages)
+    if ex_forest:
+        messages.addMessage("> Reusing existing data for forestry.")
+        out_forest = ex_forest
+    else:
+        out_forest = \
+            forestry_v1_geoprocessing(project_name, nutrient, location, in_land_cover, field, in_factors,
+                                      out_gdb, messages)
+    if ex_peat:
+        messages.addMessage("> Reusing existing data for peatlands.")
+        out_peat = ex_peat
+    else:
+        out_peat = \
+            peat_v1_geoprocessing(project_name, nutrient, location, in_land_cover, field, in_factors,
+                                  out_gdb, messages)
+    if ex_urban:
+        messages.addMessage("> Reusing existing data for diffuse urban.")
+        out_urban = ex_urban
+    else:
+        out_urban = \
+            urban_v1_geoprocessing(project_name, nutrient, location, in_land_cover, field, in_factors,
+                                   out_gdb, messages)
+    if ex_ipc and ex_sect4:
+        messages.addMessage("> Reusing existing data for IPC and Section 4 industries.")
+        out_ipc, out_sect4 = ex_ipc, ex_sect4
+    else:
+        out_ipc, out_sect4 = \
+            industry_v2_geoprocessing(project_name, nutrient, location, in_ipc, in_sect4, out_gdb, messages)
+    if ex_dwts:
+        messages.addMessage("> Reusing existing data for septic tanks.")
+        out_dwts = ex_dwts
+    else:
+        out_dwts = \
+            septic_v2_geoprocessing(project_name, nutrient, location, in_dwts, out_gdb, messages)
+    if ex_agglo:
+        messages.addMessage("> Reusing existing data for WWTPs.")
+        out_agglo = ex_agglo
+    else:
+        out_agglo = \
+            wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
+
+    return (
+        out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
+        out_urban, out_ipc, out_sect4, out_dwts, out_agglo
+    )
+
+
+def load_apportionment_v3_stats_and_summary(project_name, nutrient, location, field, out_gdb,
+                                            out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
+                                            out_ipc, out_sect4, out_dwts, out_agglo,
+                                            messages,
+                                            out_summary=None):
 
     # calculate the summary statistics using the sorting field provided for each source load
     messages.addMessage("> Calculating summary loads for all sources of {}.".format(nutrient))
@@ -451,3 +476,5 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
     for source in [out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
                    out_urban, out_ipc, out_sect4, out_dwts, out_agglo]:
         arcpy.Delete_management(source + '_stats')
+
+    return out_summary
