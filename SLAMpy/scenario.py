@@ -42,7 +42,9 @@ class _Scenario(object):
         if not self.sort_field == other.sort_field:
             raise RuntimeError("The two scenarios being subtracted do not share the same 'field' attribute.")
         if not (self.summary and other.summary):
-            raise RuntimeError("One or both of the scenarios being subtracted was not run yet.")
+            raise RuntimeError("At least one of the scenarios being subtracted was not run yet.")
+
+        return self.summary - other.summary
 
     @staticmethod
     def _table_to_dataframe(feature_, index_field, value_fields):
