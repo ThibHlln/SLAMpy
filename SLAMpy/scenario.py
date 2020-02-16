@@ -32,29 +32,67 @@ class _Scenario(object):
         self.region = region
         self.selection = selection
 
-        self.headers = ['Arable', 'Pasture', 'Lake_Deposition', 'Forestry', 'Peatlands',
-                        'Diffuse_Urban', 'Industry', 'Septic_Tank_Systems', 'Wastewater',
-                        'TotalDiffuse', 'TotalPoint', 'Total', 'TotalHa']
-        self.summary = None
+        self.area_header = ['AREAKM2']
+        self.load_headers = ['Arable', 'Pasture', 'Lake_Deposition', 'Forestry', 'Peatlands',
+                             'Diffuse_Urban', 'Industry', 'Septic_Tank_Systems', 'Wastewater']
+        self.areas = None
+        self.loads = None
         self._msg = Messages()
 
     def __sub__(self, other):
         if not self.sort_field == other.sort_field:
             raise RuntimeError("The two scenarios being subtracted do not share the same 'field' attribute.")
-        if not (self.summary and other.summary):
+        if (self.loads is None) or (other.loads is None):
             raise RuntimeError("At least one of the scenarios being subtracted was not run yet.")
 
-        return self.summary - other.summary
+        return self.loads - other.loads
 
     @staticmethod
-    def _table_to_dataframe(feature_, index_field, value_fields):
+    def _arctable_to_dataframe(feature_, index_field, value_fields, index_name=None, value_names=None):
         if not isinstance(index_field, str):
             raise TypeError("The argument 'index_field' must be a string.")
         if not isinstance(value_fields, list):
             raise TypeError("The argument 'value_fields' must be a list.")
 
+        if not index_name:
+            index_name = index_field
+        else:
+            if not isinstance(index_name, str):
+                raise TypeError("The argument 'index_name' must be a string.")
+        if not value_names:
+            value_names = value_fields
+        else:
+            if not isinstance(value_names, list):
+                raise TypeError("The argument 'value_names' must be a list.")
+
         return pd.DataFrame([row for row in arcpy.da.SearchCursor(feature_, [index_field] + value_fields)],
-                            columns=[index_field] + value_fields).set_index(index_field, drop=True)
+                            columns=[index_name] + value_names).set_index(index_name, drop=True)
+
+    def _get_areas_dataframe(self, feature_, index_field, area_field):
+        # get the dataframe for the waterbody areas
+        df_areas = self._arctable_to_dataframe(feature_, index_field, [area_field],
+                                               index_name='waterbody', value_names=['area_km2'])
+        # convert km2 to ha
+        df_areas /= 100
+        # rename column to reflect change of unit
+        df_areas.rename(columns={'area_km2': 'area_ha'}, inplace=True)
+
+        return df_areas
+
+    def _get_loads_dataframe(self, feature_, index_field, source_fields):
+        # get the dataframe for the waterbody loads per source
+        df_loads = self._arctable_to_dataframe(feature_, index_field, [source_fields],
+                                               index_name='waterbody')
+        # collapse the columns into a second index to get a multi-index dataframe
+        df_loads.stack().to_frame(name='load')
+        # rename the multi-index indices
+        df_loads.index.names = ['waterbody', 'source']
+
+        return df_loads
+
+    def plot(self):
+        if self.loads is None:
+            raise RuntimeError("The scenario '{}' cannot be plotted because it was not run yet.".format(self.name))
 
 
 class ScenarioV3(_Scenario):
@@ -143,8 +181,9 @@ class ScenarioV3(_Scenario):
         # run postprocessing
         postprocessing_v3_geoprocessing(self.name, self.nutrient, out_gdb, self._msg, out_summary=out_summary)
 
-        # collect summary as a pandas DataFrame
-        self.summary = self._table_to_dataframe(out_summary, self.sort_field, self.headers)
+        # collect areas and loads as pandas DataFrames
+        self.areas = self._get_areas_dataframe(out_summary, self.sort_field, self.area_header)
+        self.loads = self._get_loads_dataframe(out_summary, self.sort_field, self.load_headers)
 
     @staticmethod
     def _check_ex_or_in(category, existing, inputs):
