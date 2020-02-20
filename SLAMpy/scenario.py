@@ -75,7 +75,7 @@ class _Scenario(object):
         # convert km2 to ha
         df_areas /= 100
         # rename column to reflect change of unit
-        df_areas.rename(columns={'area_km2': 'area_ha'}, inplace=True)
+        df_areas.columns = ['area_ha']
 
         return df_areas
 
@@ -83,10 +83,13 @@ class _Scenario(object):
         # get the dataframe for the waterbody loads per source
         df_loads = self._arctable_to_dataframe(feature_, index_field, [source_fields],
                                                index_name='waterbody')
-        # collapse the columns into a second index to get a multi-index dataframe
-        df_loads.stack().to_frame(name='load')
-        # rename the multi-index indices
-        df_loads.index.names = ['waterbody', 'source']
+        # add a second level to the column header for category (i.e. diffuse or point)
+        df_loads.columns = pd.MultiIndex.from_arrays([['Diffuse'] * 6 + ['Point'] * 3, df_loads.columns])
+        # collapse the multi-level columns into a second and third indices to get a multi-index dataframe
+        df_loads = df_loads.stack([0, 1]).to_frame()
+        # rename the multi-index indices and column
+        df_loads.index.names = ['waterbody', 'category' 'source']
+        df_loads.columns = ['load']
 
         return df_loads
 
