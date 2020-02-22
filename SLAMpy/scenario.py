@@ -81,7 +81,7 @@ class _Scenario(object):
 
     def _get_loads_dataframe(self, feature_, index_field, source_fields):
         # get the dataframe for the waterbody loads per source
-        df_loads = self._arctable_to_dataframe(feature_, index_field, [source_fields],
+        df_loads = self._arctable_to_dataframe(feature_, index_field, source_fields,
                                                index_name='waterbody')
         # add a second level to the column header for category (i.e. diffuse or point)
         df_loads.columns = pd.MultiIndex.from_arrays([['Diffuse'] * 6 + ['Point'] * 3, df_loads.columns])
@@ -90,6 +90,8 @@ class _Scenario(object):
         # rename the multi-index indices and column
         df_loads.index.names = ['waterbody', 'category' 'source']
         df_loads.columns = ['load']
+        # because the stack sorted the indices, reorder the source level of the multi-index
+        df_loads = df_loads.reindex(labels=source_fields, level='source')
 
         return df_loads
 
