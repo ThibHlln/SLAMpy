@@ -33,8 +33,8 @@ class _Scenario(object):
         self.selection = selection
 
         self.area_header = ['AREAKM2']
-        self.load_headers = ['Arable', 'Pasture', 'Lake_Deposition', 'Forestry', 'Peatlands',
-                             'Diffuse_Urban', 'Industry', 'Septic_Tank_Systems', 'Wastewater']
+        self.source_headers = ['Arable', 'Pasture', 'Lake_Deposition', 'Forestry', 'Peatlands',
+                               'Diffuse_Urban', 'Industry', 'Septic_Tank_Systems', 'Wastewater']
         self.areas = None
         self.loads = None
         self._msg = Messages()
@@ -188,7 +188,7 @@ class ScenarioV3(_Scenario):
 
         # collect areas and loads as pandas DataFrames
         self.areas = self._get_areas_dataframe(out_summary, self.sort_field, self.area_header)
-        self.loads = self._get_loads_dataframe(out_summary, self.sort_field, self.load_headers)
+        self.loads = self._get_loads_dataframe(out_summary, self.sort_field, self.source_headers)
 
     @staticmethod
     def _check_ex_or_in(category, existing, inputs):
