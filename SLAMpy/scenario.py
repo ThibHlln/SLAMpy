@@ -1,9 +1,42 @@
 import arcpy
+import numpy as np
 import pandas as pd
 from os import sep
+from matplotlib.gridspec import GridSpec
+import matplotlib.pyplot as plt
 
 from ._load_apportionment import load_apportionment_v3_geoprocessing, load_apportionment_v3_stats_and_summary
 from ._post_processing import postprocessing_v3_geoprocessing
+
+
+_area_header = ['AREAKM2']
+
+_source_headers = ['Arable', 'Pasture', 'Lake_Deposition', 'Forestry', 'Peatlands',
+                   'Diffuse_Urban', 'Industry', 'Septic_Tank_Systems', 'Wastewater']
+
+_source_colour_palette = {
+    'Arable': '#127dc6',
+    'Pasture': '#f05b0c',
+    'Lake_Deposition': '#129c7c',
+    'Forestry': '#dd1f87',
+    'Peatlands': '#ffb700',
+    'Diffuse_Urban': '#572c8c',
+    'Industry': '#8bc722',
+    'Septic_Tank_Systems': '#074097',
+    'Wastewater': '#932989'
+}
+
+_source_fancy_names = {
+    'Arable': 'Arable',
+    'Pasture': 'Pasture',
+    'Lake_Deposition': 'Lake Deposition',
+    'Forestry': 'Forestry',
+    'Peatlands': 'Peatlands',
+    'Diffuse_Urban': 'Diffuse Urban',
+    'Industry': 'Industry',
+    'Septic_Tank_Systems': 'Septic Tanks',
+    'Wastewater': 'Wastewater'
+}
 
 
 class Messages(object):
@@ -13,6 +46,7 @@ class Messages(object):
 
 
 class _Scenario(object):
+
     _current = list()
 
     def __init__(self, name, nutrient, sort_field, region, selection=None):
@@ -32,11 +66,9 @@ class _Scenario(object):
         self.region = region
         self.selection = selection
 
-        self.area_header = ['AREAKM2']
-        self.source_headers = ['Arable', 'Pasture', 'Lake_Deposition', 'Forestry', 'Peatlands',
-                               'Diffuse_Urban', 'Industry', 'Septic_Tank_Systems', 'Wastewater']
         self.areas = None
         self.loads = None
+
         self._msg = Messages()
 
     def __sub__(self, other):
@@ -95,9 +127,75 @@ class _Scenario(object):
 
         return df_loads
 
-    def plot(self):
+    def plot_as_donut(self, output_name, width=None, colour_palette=None, title_on=True,
+                      custom_title=None, name_mapping=None, label_display_threshold_percent=1):
+
         if self.loads is None:
             raise RuntimeError("The scenario '{}' cannot be plotted because it was not run yet.".format(self.name))
+
+        # set up plot
+        fig = plt.figure()
+        gs = GridSpec(1, 1)
+        ax = fig.add_subplot(gs[:, :])
+
+        # colour palette
+        colour_palette = colour_palette if colour_palette else _source_colour_palette
+
+        # fancy renaming
+        if name_mapping:
+            fancy_names = [name_mapping[name] if name_mapping.get(name) else name
+                           for name in _source_headers]
+        else:
+            fancy_names = [_source_fancy_names[name] for name in _source_headers]
+
+        # plot
+        bbox_props = dict(boxstyle="square,pad=0.3", fc=(1, 1, 1, 0), ec="k", lw=0.)
+        kw = dict(arrowprops=dict(arrowstyle="-"),
+                  bbox=bbox_props, zorder=0, va="center")
+
+        donut_val = self.loads.groupby(
+            ['source']).agg(
+            {'load': 'sum'}).apply(
+            lambda x: 100 * x / float(x.sum())).values.flatten()
+
+        donut = ax.pie(
+            donut_val,
+            radius=1.0,
+            wedgeprops=dict(width=width if width else 0.35, edgecolor='w'),
+            labeldistance=2.0, startangle=90,
+            colors=[colour_palette[c] for c in _source_headers]
+        )
+
+        for i, p in enumerate(donut[0]):
+            if donut_val[i] > label_display_threshold_percent:
+                ang = (p.theta2 - p.theta1) / 2. + p.theta1
+                y = np.sin(np.deg2rad(ang))
+                x = np.cos(np.deg2rad(ang))
+                horizontal_alignment = {-1: "right", 1: "left"}[int(np.sign(x))]
+                connection_style = "angle,angleA=0,angleB={}".format(ang)
+                kw["arrowprops"].update({"connectionstyle": connection_style})
+                ax.annotate('{} [{:2.1f} %]'.format(fancy_names[i], donut_val[i]),
+                            xy=(x, y), xytext=(1.2 * np.sign(x), 1.25 * y),
+                            horizontalalignment=horizontal_alignment, **kw)
+
+        ax.axis('equal')  # to keep donut as a perfect circle, not an oval
+
+        # figure title
+        if title_on:
+            fig.suptitle(custom_title if custom_title else
+                         "Source Load Apportionment for {} ({})".format(self.nutrient, self.name),
+                         x=0.5, y=1.1)
+
+        # save plot
+        fig.tight_layout(rect=[0, 0, 1, 1])
+        fig.savefig(output_name + '.pdf', bbox_inches='tight',
+                    facecolor='white', edgecolor='none', format='pdf')
+
+    def save_as_csv(self, output_name):
+
+        summary = self.loads.join(self.areas.reindex(self.loads.index, level=0))
+
+        summary.to_csv('{}.csv'.format(output_name), header=['load [kg yr-1]', 'area [ha]'])
 
 
 class ScenarioV3(_Scenario):
@@ -187,8 +285,8 @@ class ScenarioV3(_Scenario):
         postprocessing_v3_geoprocessing(self.name, self.nutrient, out_gdb, self._msg, out_summary=out_summary)
 
         # collect areas and loads as pandas DataFrames
-        self.areas = self._get_areas_dataframe(out_summary, self.sort_field, self.area_header)
-        self.loads = self._get_loads_dataframe(out_summary, self.sort_field, self.source_headers)
+        self.areas = self._get_areas_dataframe(out_summary, self.sort_field, _area_header)
+        self.loads = self._get_loads_dataframe(out_summary, self.sort_field, _source_headers)
 
     @staticmethod
     def _check_ex_or_in(category, existing, inputs):
