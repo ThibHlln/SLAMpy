@@ -354,6 +354,12 @@ class ScenarioList(MutableSequence):
                             "{}.".format(self.__class__.__name__,
                                          _Scenario.__name__))
 
+        # check that the name of the scenario doesn't already exist
+        if value.name in [s.name for s in self.scenarios]:
+            raise RuntimeError("A scenario named '{}' already exists in the {}, "
+                               "please choose another name for this scenario.".format(value.name,
+                                                                                      self.__class__.__name__))
+
         # check that the scenario was already run
         if value.loads is None:
             raise RuntimeError("The scenario '{}' cannot be added to the {} because it "
