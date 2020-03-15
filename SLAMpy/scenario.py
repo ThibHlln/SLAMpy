@@ -93,7 +93,7 @@ class Scenario(object):
 
     def _get_areas_dataframe(self, feature_, index_field, area_field):
         # get the dataframe for the waterbody areas
-        df_areas = self._arctable_to_dataframe(feature_, index_field, [area_field],
+        df_areas = self._arctable_to_dataframe(feature_, index_field, area_field,
                                                index_name='waterbody', value_names=['area_km2'])
         # convert km2 to ha
         df_areas /= 100
@@ -111,7 +111,7 @@ class Scenario(object):
         # collapse the multi-level columns into a second and third indices to get a multi-index dataframe
         df_loads = df_loads.stack([0, 1]).to_frame()
         # rename the multi-index indices and column
-        df_loads.index.names = ['waterbody', 'category' 'source']
+        df_loads.index.names = ['waterbody', 'category', 'source']
         df_loads.columns = ['load']
         # because the stack sorted the indices, reorder the source level of the multi-index
         df_loads = df_loads.reindex(labels=source_fields, level='source')
