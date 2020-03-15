@@ -4,7 +4,7 @@ from collections import MutableSequence
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 
-from scenario import _source_headers, _source_colour_palette, _source_fancy_names
+from scenario import Scenario, _source_headers, _source_colour_palette, _source_fancy_names
 
 
 class ScenarioList(MutableSequence):
@@ -33,10 +33,10 @@ class ScenarioList(MutableSequence):
 
     def _check_scenario(self, value):
         # check that the object given is an instance of Scenario or a subclass of Scenario
-        if not isinstance(value, _Scenario):
+        if not isinstance(value, Scenario):
             raise TypeError("A {} can only contain instances of "
                             "{}.".format(self.__class__.__name__,
-                                         _Scenario.__name__))
+                                         Scenario.__name__))
 
         # check that the name of the scenario doesn't already exist
         if value.name in [s.name for s in self.scenarios]:
