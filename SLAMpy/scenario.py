@@ -182,27 +182,30 @@ class Scenario(object):
         fig.savefig(output_name + '.pdf', bbox_inches='tight',
                     facecolor='white', edgecolor='none', format='pdf')
 
-    def to_df_pickle(self, output_name):
+    def to_df_pickle(self):
 
         summary = self.loads.join(self.areas.reindex(self.loads.index, level=0))
 
-        summary.to_pickle('{}.{}.df'.format(output_name, self.nutrient))
+        summary.to_pickle('{}.{}.df'.format(self.name, self.nutrient))
 
-    def from_df_pickle(self, file_name):
+    @classmethod
+    def from_df_pickle(cls, file_name):
 
-        if file_name.split('.')[-2] != self.nutrient:
-            raise RuntimeError("The file you are trying to import from is not "
-                               "for nutrient {}.".format(self.nutrient))
+        name, nutrient, extension = file_name.split('.')
 
         summary = pd.read_pickle(file_name)
 
-        self.loads = summary.drop('area_ha', axis=1)
+        loads = summary.drop('area_ha', axis=1)
 
         areas = summary.loc[:, 'area_ha'].to_frame('area_ha')
         areas = areas.reset_index(('category', 'source'), drop=True)
         areas = areas.loc[~areas.index.duplicated(keep='first')]
 
-        self.areas = areas
+        instance = cls(name, nutrient)
+        instance.loads = loads
+        instance.areas = areas
+
+        return instance
 
     def save_as_csv(self, output_name):
 
