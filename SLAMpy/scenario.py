@@ -45,11 +45,11 @@ class Messages(object):
         print(msg)
 
 
-class _Scenario(object):
+class Scenario(object):
 
     _current = list()
 
-    def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
+    def __init__(self, name, nutrient, overwrite=True):
 
         arcpy.env.overwriteOutput = overwrite
 
@@ -64,22 +64,11 @@ class _Scenario(object):
         else:
             raise RuntimeError("A scenario named '{}' already exists, "
                                "please choose another name for this scenario.".format(name))
-        self.sort_field = sort_field
-        self.region = region
-        self.selection = selection
 
         self.areas = None
         self.loads = None
 
         self._msg = Messages()
-
-    def __sub__(self, other):
-        if not self.sort_field == other.sort_field:
-            raise RuntimeError("The two scenarios being subtracted do not share the same 'field' attribute.")
-        if (self.loads is None) or (other.loads is None):
-            raise RuntimeError("At least one of the scenarios being subtracted was not run yet.")
-
-        return self.loads - other.loads
 
     @staticmethod
     def _arctable_to_dataframe(feature_, index_field, value_fields, index_name=None, value_names=None):
@@ -193,6 +182,28 @@ class _Scenario(object):
         fig.savefig(output_name + '.pdf', bbox_inches='tight',
                     facecolor='white', edgecolor='none', format='pdf')
 
+    def to_df_pickle(self, output_name):
+
+        summary = self.loads.join(self.areas.reindex(self.loads.index, level=0))
+
+        summary.to_pickle('{}.{}.df'.format(output_name, self.nutrient))
+
+    def from_df_pickle(self, file_name):
+
+        if file_name.split('.')[-2] != self.nutrient:
+            raise RuntimeError("The file you are trying to import from is not "
+                               "for nutrient {}.".format(self.nutrient))
+
+        summary = pd.read_pickle(file_name)
+
+        self.loads = summary.drop('area_ha', axis=1)
+
+        areas = summary.loc[:, 'area_ha'].to_frame('area_ha')
+        areas = areas.reset_index(('category', 'source'), drop=True)
+        areas = areas.loc[~areas.index.duplicated(keep='first')]
+
+        self.areas = areas
+
     def save_as_csv(self, output_name):
 
         summary = self.loads.join(self.areas.reindex(self.loads.index, level=0))
@@ -200,11 +211,15 @@ class _Scenario(object):
         summary.to_csv('{}.csv'.format(output_name), header=['load [kg yr-1]', 'area [ha]'])
 
 
-class ScenarioV3(_Scenario):
-    def __init__(self, name, nutrient, sort_field, region, selection=None):
+class ScenarioV3(Scenario):
+    def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
 
-        super(ScenarioV3, self).__init__(name, nutrient, sort_field, region, selection)
+        super(ScenarioV3, self).__init__(name, nutrient, overwrite)
         self.__version__ = '3'
+
+        self.sort_field = sort_field
+        self.region = region
+        self.selection = selection
 
         self._outputs = {
             'arable': None,
@@ -309,7 +324,7 @@ class ScenarioV3(_Scenario):
                     raise ValueError(
                         "The existing output '{}' does not exist.".format(existing))
             # check if existing is provided by reusing a Scenario instance with an incompatible version, if so, stop
-            elif isinstance(existing, _Scenario):
+            elif isinstance(existing, Scenario):
                 raise TypeError("The existing output given for {} is an instance of an incompatible version of "
                                 "Scenario (i.e. v{} instead of v3).".format(category, existing.__version__))
             # check if existing is provided as a string (i.e. providing the direct path to data)
