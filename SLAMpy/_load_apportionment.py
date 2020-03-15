@@ -140,15 +140,15 @@ class LoadApportionmentV3(object):
             category="Forestry, Peat, and Diffuse Urban Data Settings")
         in_land_cover.value = sep.join([in_gdb, 'clc12_IE'])
 
-        in_field = arcpy.Parameter(
+        in_lc_field = arcpy.Parameter(
             displayName="Field for Land Cover Code",
-            name="in_field",
+            name="in_lc_field",
             datatype="Field",
             parameterType="Required",
             direction="Input",
             category="Forestry, Peat, and Diffuse Urban Data Settings")
-        in_field.parameterDependencies = [in_land_cover.name]
-        in_field.value = "CODE_12"
+        in_lc_field.parameterDependencies = [in_land_cover.name]
+        in_lc_field.value = "CODE_12"
 
         in_factors_n = arcpy.Parameter(
             displayName="Land Cover Factors for Nitrogen (N)",
@@ -267,7 +267,7 @@ class LoadApportionmentV3(object):
                 project_name, nutrient, region, selection, field,
                 in_arable, in_pasture, ex_arable, ex_pasture,
                 in_atm_depo, ex_atm_depo,
-                in_land_cover, in_field, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban,
+                in_land_cover, in_lc_field, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban,
                 in_ipc, in_sect4, ex_ipc, ex_sect4,
                 in_dwts, ex_dwts,
                 in_agglo, ex_agglo]
@@ -278,7 +278,7 @@ class LoadApportionmentV3(object):
             project_name, nutrient, region, selection, sort_field, \
             in_arable, in_pasture, ex_arable, ex_pasture, \
             in_atm_depo, ex_atm_depo, \
-            in_land_cover, in_field, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban, \
+            in_land_cover, in_lc_field, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban, \
             in_ipc, in_sect4, ex_ipc, ex_sect4, \
             in_dwts, ex_dwts, \
             in_agglo, ex_agglo = \
@@ -301,7 +301,7 @@ class LoadApportionmentV3(object):
         # run geoprocessing functions for each source load
         (out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
             out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v3_geoprocessing(
-                project_name, nutrient, location, in_field,
+                project_name, nutrient, location, in_lc_field,
                 in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
                 in_ipc, in_sect4, in_dwts, in_agglo,
                 ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
@@ -319,7 +319,7 @@ class LoadApportionmentV3(object):
             arcpy.Delete_management(location)
 
 
-def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
+def load_apportionment_v3_geoprocessing(project_name, nutrient, location, in_lc_field,
                                         in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
                                         in_ipc, in_sect4, in_dwts, in_agglo,
                                         ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
@@ -345,21 +345,21 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
         out_forest = ex_forest
     else:
         out_forest = \
-            forestry_v1_geoprocessing(project_name, nutrient, location, in_land_cover, field, in_factors,
+            forestry_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_lc_field, in_factors,
                                       out_gdb, messages)
     if ex_peat:
         messages.addMessage("> Reusing existing data for peatlands.")
         out_peat = ex_peat
     else:
         out_peat = \
-            peat_v1_geoprocessing(project_name, nutrient, location, in_land_cover, field, in_factors,
+            peat_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_lc_field, in_factors,
                                   out_gdb, messages)
     if ex_urban:
         messages.addMessage("> Reusing existing data for diffuse urban.")
         out_urban = ex_urban
     else:
         out_urban = \
-            urban_v1_geoprocessing(project_name, nutrient, location, in_land_cover, field, in_factors,
+            urban_v1_geoprocessing(project_name, nutrient, location, in_land_cover, in_lc_field, in_factors,
                                    out_gdb, messages)
     if ex_ipc and ex_sect4:
         messages.addMessage("> Reusing existing data for IPC and Section 4 industries.")
@@ -386,7 +386,7 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, field,
     )
 
 
-def load_apportionment_v3_stats_and_summary(project_name, nutrient, location, field, out_gdb,
+def load_apportionment_v3_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
                                             out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
                                             out_ipc, out_sect4, out_dwts, out_agglo,
                                             messages,
@@ -396,32 +396,32 @@ def load_apportionment_v3_stats_and_summary(project_name, nutrient, location, fi
     messages.addMessage("> Calculating summary loads for all sources of {}.".format(nutrient))
 
     arcpy.Statistics_analysis(in_table=out_arable, out_table=out_arable + '_stats',
-                              statistics_fields=[["GWArab2calc", "SUM"], ["Arab2calc", "SUM"]], case_field=field)
+                              statistics_fields=[["GWArab2calc", "SUM"], ["Arab2calc", "SUM"]], case_field=sort_field)
     arcpy.Statistics_analysis(in_table=out_pasture, out_table=out_pasture + '_stats',
-                              statistics_fields=[["GWPast2calc", "SUM"], ["Past2calc", "SUM"]], case_field=field)
+                              statistics_fields=[["GWPast2calc", "SUM"], ["Past2calc", "SUM"]], case_field=sort_field)
 
     arcpy.Statistics_analysis(in_table=out_atm_depo, out_table=out_atm_depo + '_stats',
-                              statistics_fields=[["Atm2calc", "SUM"]], case_field=field)
+                              statistics_fields=[["Atm2calc", "SUM"]], case_field=sort_field)
 
     arcpy.Statistics_analysis(in_table=out_forest, out_table=out_forest + '_stats',
-                              statistics_fields=[["For1calc", "SUM"]], case_field=field)
+                              statistics_fields=[["For1calc", "SUM"]], case_field=sort_field)
 
     arcpy.Statistics_analysis(in_table=out_peat, out_table=out_peat + '_stats',
-                              statistics_fields=[["Peat1calc", "SUM"]], case_field=field)
+                              statistics_fields=[["Peat1calc", "SUM"]], case_field=sort_field)
 
     arcpy.Statistics_analysis(in_table=out_urban, out_table=out_urban + '_stats',
-                              statistics_fields=[["Urb1calc", "SUM"]], case_field=field)
+                              statistics_fields=[["Urb1calc", "SUM"]], case_field=sort_field)
 
     arcpy.Statistics_analysis(in_table=out_ipc, out_table=out_ipc + '_stats',
-                              statistics_fields=[["IPInd2calc", "SUM"]], case_field=field)
+                              statistics_fields=[["IPInd2calc", "SUM"]], case_field=sort_field)
     arcpy.Statistics_analysis(in_table=out_sect4, out_table=out_sect4 + '_stats',
-                              statistics_fields=[["S4Ind2calc", "SUM"]], case_field=field)
+                              statistics_fields=[["S4Ind2calc", "SUM"]], case_field=sort_field)
 
     arcpy.Statistics_analysis(in_table=out_dwts, out_table=out_dwts + '_stats',
-                              statistics_fields=[["GWSept2calc", "SUM"], ["Sept2calc", "SUM"]], case_field=field)
+                              statistics_fields=[["GWSept2calc", "SUM"], ["Sept2calc", "SUM"]], case_field=sort_field)
 
     arcpy.Statistics_analysis(in_table=out_agglo, out_table=out_agglo + '_stats',
-                              statistics_fields=[["SWOWast2calc", "SUM"], ["Wast2calc", "SUM"]], case_field=field)
+                              statistics_fields=[["SWOWast2calc", "SUM"], ["Wast2calc", "SUM"]], case_field=sort_field)
 
     # copy the input region or sub-region into the output gdb to store the results in
     messages.addMessage("> Creating output feature class to store load apportionment for {}.".format(nutrient))
@@ -434,42 +434,42 @@ def load_apportionment_v3_stats_and_summary(project_name, nutrient, location, fi
     # combine the source loads into output summary
     messages.addMessage("> Gathering all sources of {} in output feature class.".format(nutrient))
 
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_arable + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_arable + '_stats', join_field=sort_field,
                                fields=["SUM_GWArab2calc", "SUM_Arab2calc"])
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_pasture + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_pasture + '_stats', join_field=sort_field,
                                fields=["SUM_GWPast2calc", "SUM_Past2calc"])
 
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_atm_depo + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_atm_depo + '_stats', join_field=sort_field,
                                fields=["SUM_Atm2calc"])
 
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_forest + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_forest + '_stats', join_field=sort_field,
                                fields=["SUM_For1calc"])
 
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_peat + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_peat + '_stats', join_field=sort_field,
                                fields=["SUM_Peat1calc"])
 
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_urban + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_urban + '_stats', join_field=sort_field,
                                fields=["SUM_Urb1calc"])
 
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_ipc + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_ipc + '_stats', join_field=sort_field,
                                fields=["SUM_IPInd2calc"])
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_sect4 + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_sect4 + '_stats', join_field=sort_field,
                                fields=["SUM_S4Ind2calc"])
 
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_dwts + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_dwts + '_stats', join_field=sort_field,
                                fields=["SUM_GWSept2calc", "SUM_Sept2calc"])
 
-    arcpy.JoinField_management(in_data=out_summary, in_field=field,
-                               join_table=out_agglo + '_stats', join_field=field,
+    arcpy.JoinField_management(in_data=out_summary, in_field=sort_field,
+                               join_table=out_agglo + '_stats', join_field=sort_field,
                                fields=["SUM_SWOWast2calc", "SUM_Wast2calc"])
 
     # garbage collection of the summary stats feature classes created for each individual source load

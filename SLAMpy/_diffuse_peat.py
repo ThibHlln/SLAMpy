@@ -71,15 +71,15 @@ class PeatV1(object):
             category="Peat Data Settings")
         in_peat.value = sep.join([in_gdb, 'clc12_IE'])
 
-        in_field = arcpy.Parameter(
+        in_lc_field = arcpy.Parameter(
             displayName="Field for Land Cover Code",
-            name="in_field",
+            name="in_lc_field",
             datatype="Field",
             parameterType="Required",
             direction="Input",
             category="Peat Data Settings")
-        in_field.parameterDependencies = [in_peat.name]
-        in_field.value = "CODE_12"
+        in_lc_field.parameterDependencies = [in_peat.name]
+        in_lc_field.value = "CODE_12"
 
         in_factors_n = arcpy.Parameter(
             displayName="Land Cover Factors for Nitrogen (N)",
@@ -101,11 +101,11 @@ class PeatV1(object):
 
         return [out_gdb,
                 project_name, nutrient, region, selection,
-                in_peat, in_field, in_factors_n, in_factors_p]
+                in_peat, in_lc_field, in_factors_n, in_factors_p]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, project_name, nutrient, region, selection, in_peat, in_field, in_factors_n, in_factors_p = \
+        out_gdb, project_name, nutrient, region, selection, in_peat, in_lc_field, in_factors_n, in_factors_p = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
@@ -123,14 +123,14 @@ class PeatV1(object):
         in_factors = in_factors_n if nutrient == 'N' else in_factors_p
 
         # run geoprocessing function
-        peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_field, in_factors, out_gdb, messages)
+        peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_lc_field, in_factors, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_field, in_factors, out_gdb, messages,
+def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_lc_field, in_factors, out_gdb, messages,
                           out_peat=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
@@ -141,8 +141,8 @@ def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_field, i
     :type location: str
     :param in_peat: path of the input feature class of the land cover data [required]
     :type in_peat: str
-    :param in_field: name of the field in in_peat to use for the land cover type [required]
-    :type in_field: str
+    :param in_lc_field: name of the field in in_peat to use for the land cover type [required]
+    :type in_lc_field: str
     :param in_factors: path of the input table of the export factors for land cover types [required]
     :type in_factors: str
     :param out_gdb: path of the geodatabase where to store the output feature classes [required]
@@ -159,7 +159,7 @@ def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_field, i
     arcpy.MakeFeatureLayer_management(in_features=in_peat, out_layer='lyrPeat')
     arcpy.SelectLayerByAttribute_management(in_layer_or_view='lyrPeat',
                                             selection_type="NEW_SELECTION",
-                                            where_clause="{} LIKE '41%'".format(in_field))
+                                            where_clause="{} LIKE '41%'".format(in_lc_field))
 
     if not out_peat:
         out_peat = sep.join([out_gdb, project_name + '_{}_Peat'.format(nutrient)])
@@ -187,7 +187,7 @@ def peat_v1_geoprocessing(project_name, nutrient, location, in_peat, in_field, i
     arcpy.AddField_management(in_table=out_peat, field_name="Peat1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_peat, field="Peat1calc",
-                                    expression="factor(!{}!, float(!Area_ha!))".format(in_field),
+                                    expression="factor(!{}!, float(!Area_ha!))".format(in_lc_field),
                                     expression_type="PYTHON_9.3",
                                     code_block=
                                     """def factor(code, area):

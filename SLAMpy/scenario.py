@@ -221,7 +221,7 @@ class ScenarioV3(_Scenario):
         }
 
     def run(self, out_gdb, in_arable=None, in_pasture=None, in_atm_depo=None,
-            in_land_cover=None, in_field=None, in_factors=None,
+            in_land_cover=None, in_lc_field=None, in_factors=None,
             in_ipc=None, in_sect4=None, in_dwts=None, in_agglo=None,
             ex_arable=None, ex_pasture=None, ex_atm_depo=None, ex_forest=None, ex_peat=None, ex_urban=None,
             ex_ipc=None, ex_sect4=None, ex_dwts=None, ex_agglo=None):
@@ -253,7 +253,7 @@ class ScenarioV3(_Scenario):
         # run geoprocessing functions for each source load
         (out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
             out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v3_geoprocessing(
-                self.name, self.nutrient, location, in_field,
+                self.name, self.nutrient, location, in_lc_field,
                 in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
                 in_ipc, in_sect4, in_dwts, in_agglo,
                 ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
