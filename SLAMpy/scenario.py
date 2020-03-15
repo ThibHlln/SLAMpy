@@ -50,7 +50,9 @@ class _Scenario(object):
 
     _current = list()
 
-    def __init__(self, name, nutrient, sort_field, region, selection=None):
+    def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
+
+        arcpy.env.overwriteOutput = overwrite
 
         self.__version__ = None
         if nutrient in ['N', 'P']:
