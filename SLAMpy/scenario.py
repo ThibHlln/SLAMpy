@@ -64,7 +64,7 @@ class _Scenario(object):
             self._current.append(name)
         else:
             raise RuntimeError("A scenario named '{}' already exists, "
-                               "please choose another name for this scenario.".format(self.name))
+                               "please choose another name for this scenario.".format(name))
         self.sort_field = sort_field
         self.region = region
         self.selection = selection
