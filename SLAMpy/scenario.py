@@ -118,7 +118,7 @@ class Scenario(object):
 
         return df_loads
 
-    def plot_as_donut(self, output_name, width=None, colour_palette=None, title_on=True,
+    def plot_as_donut(self, output_name, width=0.35, colour_palette=None, title_on=True,
                       custom_title=None, name_mapping=None, label_display_threshold_percent=1):
 
         if self.loads is None:
@@ -152,7 +152,7 @@ class Scenario(object):
         donut = ax.pie(
             donut_val,
             radius=1.0,
-            wedgeprops=dict(width=width if width else 0.35, edgecolor='w'),
+            wedgeprops=dict(width=width, edgecolor='w'),
             labeldistance=2.0, startangle=90,
             colors=[colour_palette[c] for c in _source_headers]
         )
