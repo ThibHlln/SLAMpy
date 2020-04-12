@@ -9,10 +9,16 @@ from ._load_apportionment import load_apportionment_v3_geoprocessing, load_appor
 from ._post_processing import postprocessing_v3_geoprocessing
 
 
-_area_header = ['AREAKM2']
+_area_header_arcmap = ['AREAKM2']
 
-_source_headers = ['Arable', 'Pasture', 'Lake_Deposition', 'Forestry', 'Peatlands',
-                   'Diffuse_Urban', 'Industry', 'Septic_Tank_Systems', 'Wastewater']
+_source_headers_arcmap = ['Arable', 'Pasture', 'Lake_Deposition', 'Forestry', 'Peatlands',
+                          'Diffuse_Urban', 'Industry', 'Septic_Tank_Systems', 'Wastewater']
+
+_area_header_csv = ['area [ha]']
+
+_source_headers_csv = ['arable [kg yr-1]', 'pasture [kg yr-1]', 'lake deposition [kg yr-1]',
+                       'forestry [kg yr-1]', 'peatlands [kg yr-1]', 'diffuse urban [kg yr-1]',
+                       'industry [kg yr-1]', 'septic tank systems [kg yr-1]', 'wastewater [kg yr-1]']
 
 _source_colour_palette = {
     'Arable': '#127dc6',
@@ -97,8 +103,8 @@ class Scenario(object):
                                                index_name='waterbody', value_names=['area_km2'])
         # convert km2 to ha
         df_areas /= 100
-        # rename column to reflect change of unit
-        df_areas.columns = ['area_ha']
+        # rename column to remove unit
+        df_areas.columns = ['area']
 
         return df_areas
 
@@ -135,9 +141,9 @@ class Scenario(object):
         # fancy renaming
         if name_mapping:
             fancy_names = [name_mapping[name] if name_mapping.get(name) else name
-                           for name in _source_headers]
+                           for name in _source_headers_arcmap]
         else:
-            fancy_names = [_source_fancy_names[name] for name in _source_headers]
+            fancy_names = [_source_fancy_names[name] for name in _source_headers_arcmap]
 
         # plot
         bbox_props = dict(boxstyle="square,pad=0.3", fc=(1, 1, 1, 0), ec="k", lw=0.)
@@ -154,7 +160,7 @@ class Scenario(object):
             radius=1.0,
             wedgeprops=dict(width=width, edgecolor='w'),
             labeldistance=2.0, startangle=90,
-            colors=[colour_palette[c] for c in _source_headers]
+            colors=[colour_palette[c] for c in _source_headers_arcmap]
         )
 
         for i, p in enumerate(donut[0]):
@@ -182,36 +188,67 @@ class Scenario(object):
         fig.savefig(output_name + '.pdf', bbox_inches='tight',
                     facecolor='white', edgecolor='none', format='pdf')
 
-    def to_df_pickle(self):
-
-        summary = self.loads.join(self.areas.reindex(self.loads.index, level=0))
-
-        summary.to_pickle('{}.{}.df'.format(self.name, self.nutrient))
-
     @classmethod
-    def from_df_pickle(cls, file_name):
-
+    def read_from_csv(cls, file_name):
+        # infer attributes for Scenario from standardised file name
         name, nutrient, extension = file_name.split('.')
 
-        summary = pd.read_pickle(file_name)
+        # use pandas to read the file
+        summary = pd.read_csv(file_name, header=0, index_col=0)
 
-        loads = summary.drop('area_ha', axis=1)
+        # split read in dataframe into two separate dataframes for loads and areas
+        loads = summary.drop('area [ha]', axis=1)
+        areas = summary.loc[:, 'area [ha]'].to_frame('area [ha]')
 
-        areas = summary.loc[:, 'area_ha'].to_frame('area_ha')
-        areas = areas.reset_index(('category', 'source'), drop=True)
-        areas = areas.loc[~areas.index.duplicated(keep='first')]
+        # rename areas column to drop unit
+        areas.columns = ['area']
 
+        # convert loads column names into how they are found in ArcMap
+        loads.columns = _source_headers_arcmap
+        # add a second level to the column header for category (i.e. diffuse or point)
+        loads.columns = pd.MultiIndex.from_arrays([['Diffuse'] * 6 + ['Point'] * 3, loads.columns])
+        # collapse the multi-level columns into a second and third indices to get a multi-index dataframe
+        loads = loads.stack([0, 1]).to_frame()
+        # give names to the multi-index indices
+        loads.index.names = ['waterbody', 'category', 'source']
+        # rename loads column to drop unit
+        loads.columns = ['load']
+        # because the stack sorted the indices, reorder the source level of the multi-index
+        loads = loads.reindex(labels=_source_headers_arcmap, level='source')
+
+        # create an instance of the class from all the information collected and processed
         instance = cls(name, nutrient)
         instance.loads = loads
         instance.areas = areas
 
         return instance
 
-    def save_as_csv(self, output_name):
+    def write_to_csv(self):
+        # infer file name from scenario's attributes
+        file_name = '{}.{}.csv'.format(self.name, self.nutrient)
 
-        summary = self.loads.join(self.areas.reindex(self.loads.index, level=0))
+        # make deep copies of the dataframes
+        loads = self.loads.copy(deep=True)
+        areas = self.areas.copy(deep=True)
 
-        summary.to_csv('{}.csv'.format(output_name), header=['load [kg yr-1]', 'area [ha]'])
+        # remove the 'category' in multi-index
+        loads.reset_index(level=1, drop=True, inplace=True)
+        # unstack dataframe to get 'sources' as columns
+        loads = loads.unstack(level=1)
+        # remove the first level of the multi-column (i.e. 'load')
+        loads = loads.droplevel(level=0, axis=1)
+        # reorder the columns because unstack sorted them
+        loads = loads[_source_headers_arcmap]
+        # use the formatted version of the headers to include units
+        loads.columns = _source_headers_csv
+
+        # merge the two dataframes into one
+        summary = loads.join(areas)
+        # rename the index
+        summary.index.name = 'waterbodies \\ {} loads'.format(self.nutrient)
+
+        # save as CSV file
+        summary.to_csv(file_name)
 
 
 class ScenarioV3(Scenario):
@@ -305,8 +342,8 @@ class ScenarioV3(Scenario):
         postprocessing_v3_geoprocessing(self.name, self.nutrient, out_gdb, self._msg, out_summary=out_summary)
 
         # collect areas and loads as pandas DataFrames
-        self.areas = self._get_areas_dataframe(out_summary, self.sort_field, _area_header)
-        self.loads = self._get_loads_dataframe(out_summary, self.sort_field, _source_headers)
+        self.areas = self._get_areas_dataframe(out_summary, self.sort_field, _area_header_arcmap)
+        self.loads = self._get_loads_dataframe(out_summary, self.sort_field, _source_headers_arcmap)
 
     @staticmethod
     def _check_ex_or_in(category, existing, inputs):

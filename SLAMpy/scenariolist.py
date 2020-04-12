@@ -4,7 +4,7 @@ from collections import MutableSequence
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 
-from scenario import Scenario, _source_headers, _source_colour_palette, _source_fancy_names
+from scenario import Scenario, _source_headers_arcmap, _source_colour_palette, _source_fancy_names
 
 
 class ScenarioList(MutableSequence):
@@ -69,9 +69,9 @@ class ScenarioList(MutableSequence):
         # fancy renaming
         if name_mapping:
             fancy_names = [name_mapping[name] if name_mapping.get(name) else name
-                           for name in _source_headers]
+                           for name in _source_headers_arcmap]
         else:
-            fancy_names = [_source_fancy_names[name] for name in _source_headers]
+            fancy_names = [_source_fancy_names[name] for name in _source_headers_arcmap]
 
         # concatenate the scenarios into one dataframe
         all_loads = [scenario.loads for scenario in self.scenarios]
@@ -83,7 +83,7 @@ class ScenarioList(MutableSequence):
         # reindex the created dataframe to make sure that the order of the sources is standard
         # (because if the waterbodies are not ordered in the same way, it could have changed the
         # order of the sources during the concatenation)
-        df_loads = df_loads.reindex(labels=_source_headers, level='source')
+        df_loads = df_loads.reindex(labels=_source_headers_arcmap, level='source')
 
         # group by the sources in each scenario
         # (i.e. collapse values to selection level, i.e. lose the information per waterbody)
@@ -126,7 +126,7 @@ class ScenarioList(MutableSequence):
         # plot
         bars = list()
         bottom = np.zeros(stack_vals.shape[1])
-        for i, source in enumerate(_source_headers):
+        for i, source in enumerate(_source_headers_arcmap):
             bars.append(
                 ax.bar(
                     x=range_ * width + (1.0 / aspect_ratio / 2),
