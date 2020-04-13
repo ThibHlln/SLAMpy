@@ -11,26 +11,14 @@ from ._post_processing import postprocessing_v3_geoprocessing
 
 _area_header_arcmap = ['AREAKM2']
 
+_area_header_csv = ['area [ha]']
+
 _source_headers_arcmap = ['Arable', 'Pasture', 'Lake_Deposition', 'Forestry', 'Peatlands',
                           'Diffuse_Urban', 'Industry', 'Septic_Tank_Systems', 'Wastewater']
-
-_area_header_csv = ['area [ha]']
 
 _source_headers_csv = ['arable [kg yr-1]', 'pasture [kg yr-1]', 'lake deposition [kg yr-1]',
                        'forestry [kg yr-1]', 'peatlands [kg yr-1]', 'diffuse urban [kg yr-1]',
                        'industry [kg yr-1]', 'septic tank systems [kg yr-1]', 'wastewater [kg yr-1]']
-
-_source_colour_palette = {
-    'Arable': '#127dc6',
-    'Pasture': '#f05b0c',
-    'Lake_Deposition': '#129c7c',
-    'Forestry': '#dd1f87',
-    'Peatlands': '#ffb700',
-    'Diffuse_Urban': '#572c8c',
-    'Industry': '#8bc722',
-    'Septic_Tank_Systems': '#074097',
-    'Wastewater': '#932989'
-}
 
 _source_fancy_names = {
     'Arable': 'Arable',
@@ -42,6 +30,18 @@ _source_fancy_names = {
     'Industry': 'Industry',
     'Septic_Tank_Systems': 'Septic Tanks',
     'Wastewater': 'Wastewater'
+}
+
+_source_colour_palette = {
+    'Arable': '#127dc6',
+    'Pasture': '#f05b0c',
+    'Lake_Deposition': '#129c7c',
+    'Forestry': '#dd1f87',
+    'Peatlands': '#ffb700',
+    'Diffuse_Urban': '#572c8c',
+    'Industry': '#8bc722',
+    'Septic_Tank_Systems': '#074097',
+    'Wastewater': '#932989'
 }
 
 
