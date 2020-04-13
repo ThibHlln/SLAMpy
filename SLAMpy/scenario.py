@@ -189,12 +189,13 @@ class Scenario(object):
                     facecolor='white', edgecolor='none', format='pdf')
 
     @classmethod
-    def read_from_csv(cls, file_name):
+    def read_from_csv(cls, file_path):
         # infer attributes for Scenario from standardised file name
+        file_name = file_path.split(sep)[-1]
         name, nutrient, extension = file_name.split('.')
 
         # use pandas to read the file
-        summary = pd.read_csv(file_name, header=0, index_col=0)
+        summary = pd.read_csv(file_path, header=0, index_col=0)
 
         # split read in dataframe into two separate dataframes for loads and areas
         loads = summary.drop('area [ha]', axis=1)
@@ -223,9 +224,11 @@ class Scenario(object):
 
         return instance
 
-    def write_to_csv(self):
+    def write_to_csv(self, output_location=None):
         # infer file name from scenario's attributes
         file_name = '{}.{}.csv'.format(self.name, self.nutrient)
+        # generate file pth from from file_name and output location if given
+        file_path = output_location + sep + file_name if output_location else file_name
 
         # make deep copies of the dataframes
         loads = self.loads.copy(deep=True)
@@ -248,7 +251,7 @@ class Scenario(object):
         summary.index.name = 'basins \\ {} loads'.format(self.nutrient)
 
         # save as CSV file
-        summary.to_csv(file_name)
+        summary.to_csv(file_path)
 
     @classmethod
     def from_subset_in_existing_scenario(cls, existing_scenario, basin_subset_list, new_name):
