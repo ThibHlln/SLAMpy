@@ -250,6 +250,27 @@ class Scenario(object):
         # save as CSV file
         summary.to_csv(file_name)
 
+    @classmethod
+    def from_subset_in_existing_scenario(cls, existing_scenario, basin_subset_list, new_name):
+        # use the list of basin subset on the existing scenario to get the two subset dataframes
+        try:
+            lo = existing_scenario.loads.loc[basin_subset_list]
+            ar = existing_scenario.areas.loc[basin_subset_list]
+        except KeyError:  # pandas.DataFrame.loc will raise a KeyError if any item in list is missing in DataFrame index
+            # figure out which basin(s) is (are) missing to return a more informative error message
+            missing = [m for m in basin_subset_list if m not in
+                       existing_scenario.areas.index.values.tolist()]
+            raise KeyError("Error when generating a subset Scenario: "
+                           "the following basins are not available in "
+                           "the Scenario '{}': {}".format(existing_scenario.name, missing))
+
+        # create an instance of the class from all the information collected and processed
+        instance = cls(new_name, existing_scenario.nutrient)
+        instance.loads = lo
+        instance.areas = ar
+
+        return instance
+
 
 class ScenarioV3(Scenario):
     def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
