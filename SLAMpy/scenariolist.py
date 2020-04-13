@@ -53,11 +53,11 @@ class ScenarioList(MutableSequence):
             # check that nutrient is the same
             if not self.scenarios[0].nutrient == value.nutrient:
                 raise ValueError("The scenario '{}' cannot be added to the {} because its "
-                                 "nutrient does not match the nutrient of the existing scenarios.")
+                                 "nutrient does not match the nutrient of the existing scenarios in the list.")
             # check that the multi-index of the 'loads' dataframes are equal
             if not self.scenarios[0].loads.sort_index().index.equals(value.loads.sort_index().index):
                 raise ValueError("The scenario '{}' cannot be added to the {} because its "
-                                 "index does not match the indices of the existing scenarios: "
+                                 "index does not match the indices of the existing scenarios in the list: "
                                  "it is likely that they contain different basins.")
         else:
             self.nutrient = value.nutrient
