@@ -98,9 +98,9 @@ class Scenario(object):
                             columns=[index_name] + value_names).set_index(index_name, drop=True)
 
     def _get_areas_dataframe(self, feature_, index_field, area_field):
-        # get the dataframe for the waterbody areas
+        # get the dataframe for the basin areas
         df_areas = self._arctable_to_dataframe(feature_, index_field, area_field,
-                                               index_name='waterbody', value_names=['area_km2'])
+                                               index_name='basin', value_names=['area_km2'])
         # convert km2 to ha
         df_areas /= 100
         # rename column to remove unit
@@ -109,15 +109,15 @@ class Scenario(object):
         return df_areas
 
     def _get_loads_dataframe(self, feature_, index_field, source_fields):
-        # get the dataframe for the waterbody loads per source
+        # get the dataframe for the basin loads per source
         df_loads = self._arctable_to_dataframe(feature_, index_field, source_fields,
-                                               index_name='waterbody')
+                                               index_name='basin')
         # add a second level to the column header for category (i.e. diffuse or point)
         df_loads.columns = pd.MultiIndex.from_arrays([['Diffuse'] * 6 + ['Point'] * 3, df_loads.columns])
         # collapse the multi-level columns into a second and third indices to get a multi-index dataframe
         df_loads = df_loads.stack([0, 1]).to_frame()
         # rename the multi-index indices and column
-        df_loads.index.names = ['waterbody', 'category', 'source']
+        df_loads.index.names = ['basin', 'category', 'source']
         df_loads.columns = ['load']
         # because the stack sorted the indices, reorder the source level of the multi-index
         df_loads = df_loads.reindex(labels=source_fields, level='source')
@@ -210,7 +210,7 @@ class Scenario(object):
         # collapse the multi-level columns into a second and third indices to get a multi-index dataframe
         loads = loads.stack([0, 1]).to_frame()
         # give names to the multi-index indices
-        loads.index.names = ['waterbody', 'category', 'source']
+        loads.index.names = ['basin', 'category', 'source']
         # rename loads column to drop unit
         loads.columns = ['load']
         # because the stack sorted the indices, reorder the source level of the multi-index
@@ -245,7 +245,7 @@ class Scenario(object):
         # merge the two dataframes into one
         summary = loads.join(areas)
         # rename the index
-        summary.index.name = 'waterbodies \\ {} loads'.format(self.nutrient)
+        summary.index.name = 'basins \\ {} loads'.format(self.nutrient)
 
         # save as CSV file
         summary.to_csv(file_name)

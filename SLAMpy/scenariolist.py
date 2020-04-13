@@ -58,14 +58,13 @@ class ScenarioList(MutableSequence):
             if not self.scenarios[0].loads.sort_index().index.equals(value.loads.sort_index().index):
                 raise ValueError("The scenario '{}' cannot be added to the {} because its "
                                  "index does not match the indices of the existing scenarios: "
-                                 "it is likely that they contain different waterbodies.")
+                                 "it is likely that they contain different basins.")
         else:
             self.nutrient = value.nutrient
 
     def plot_as_stacked_bars(self, output_name, colour_palette=None, name_mapping=None,
                              title_on=True, custom_title=None, scenario_label_rotation=90,
                              width=0.05):
-
         # fancy renaming
         if name_mapping:
             fancy_names = [name_mapping[name] if name_mapping.get(name) else name
@@ -81,12 +80,12 @@ class ScenarioList(MutableSequence):
         df_loads.columns = all_names
 
         # reindex the created dataframe to make sure that the order of the sources is standard
-        # (because if the waterbodies are not ordered in the same way, it could have changed the
+        # (because if the basins are not ordered in the same way, it could have changed the
         # order of the sources during the concatenation)
         df_loads = df_loads.reindex(labels=_source_headers_arcmap, level='source')
 
         # group by the sources in each scenario
-        # (i.e. collapse values to selection level, i.e. lose the information per waterbody)
+        # (i.e. collapse values to selection level, i.e. lose the information per basin)
         df_loads = df_loads.groupby(
             ['source']).agg(
             {name: 'sum' for name in all_names})
