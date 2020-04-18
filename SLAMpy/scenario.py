@@ -168,6 +168,7 @@ class Scenario(object):
             colors=[colour_palette[c] for c in _source_headers_arcmap]
         )
 
+        not_tagged = list()
         for i, p in enumerate(donut[0]):
             if donut_val[i] > label_display_threshold_percent:
                 ang = (p.theta2 - p.theta1) / 2. + p.theta1
@@ -179,6 +180,11 @@ class Scenario(object):
                 ax.annotate('{} [{:2.1f} %]'.format(fancy_names[i], donut_val[i]),
                             xy=(x, y), xytext=(1.2 * np.sign(x), 1.25 * y),
                             horizontalalignment=horizontal_alignment, **kw)
+            else:
+                not_tagged.append('{} [{:2.1f} %]'.format(fancy_names[i], donut_val[i]))
+        not_tagged = "Not tagged: " + ", ".join(not_tagged)
+        ax.annotate(not_tagged, xy=(0.5, 0.01), xycoords='figure fraction',
+                    horizontalalignment='center')
 
         ax.axis('equal')  # to keep donut as a perfect circle, not an oval
 
