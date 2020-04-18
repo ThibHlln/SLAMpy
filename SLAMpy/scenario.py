@@ -124,11 +124,16 @@ class Scenario(object):
 
         return df_loads
 
-    def plot_as_donut(self, output_name, width=0.35, colour_palette=None, title_on=True,
+    def plot_as_donut(self, file_name, output_location=None, file_format='pdf',
+                      width=0.35, colour_palette=None, title_on=True,
                       custom_title=None, name_mapping=None, label_display_threshold_percent=1):
 
         if self.loads is None:
             raise RuntimeError("The scenario '{}' cannot be plotted because it was not run yet.".format(self.name))
+
+        # generate file pth from from file_name and output location if given
+        file_path = output_location + sep + file_name + '.' + file_format \
+            if output_location else file_name + '.' + file_format
 
         # set up plot
         fig = plt.figure()
@@ -185,8 +190,8 @@ class Scenario(object):
 
         # save plot
         fig.tight_layout(rect=[0, 0, 1, 1])
-        fig.savefig(output_name + '.pdf', bbox_inches='tight',
-                    facecolor='white', edgecolor='none', format='pdf')
+        fig.savefig(file_path, bbox_inches='tight',
+                    facecolor='white', edgecolor='none', format=file_format)
 
     @classmethod
     def read_from_csv(cls, file_path):

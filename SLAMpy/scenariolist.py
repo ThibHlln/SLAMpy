@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from os import sep
 from collections import MutableSequence
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
@@ -62,9 +63,14 @@ class ScenarioList(MutableSequence):
         else:
             self.nutrient = value.nutrient
 
-    def plot_as_stacked_bars(self, output_name, colour_palette=None, name_mapping=None,
-                             title_on=True, custom_title=None, scenario_label_rotation=90,
-                             width=0.05):
+    def plot_as_stacked_bars(self, file_name, output_location=None, file_format='pdf',
+                             colour_palette=None, name_mapping=None, title_on=True,
+                             custom_title=None,  scenario_label_rotation=90, width=0.05):
+
+        # generate file pth from from file_name and output location if given
+        file_path = output_location + sep + file_name + '.' + file_format \
+            if output_location else file_name + '.' + file_format
+
         # fancy renaming
         if name_mapping:
             fancy_names = [name_mapping[name] if name_mapping.get(name) else name
@@ -163,5 +169,5 @@ class ScenarioList(MutableSequence):
 
         # save plot
         fig.tight_layout(rect=[0, 0.13, 1, 1])
-        fig.savefig(output_name + '.pdf', bbox_inches='tight',
-                    facecolor='white', edgecolor='none', format='pdf')
+        fig.savefig(file_path, bbox_inches='tight',
+                    facecolor='white', edgecolor='none', format=file_format)
