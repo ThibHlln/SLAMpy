@@ -311,7 +311,7 @@ class ScenarioV3(Scenario):
 
     def run(self, out_gdb, in_arable=None, in_pasture=None, in_atm_depo=None,
             in_land_cover=None, in_lc_field=None, in_factors=None,
-            in_ipc=None, in_sect4=None, in_dwts=None, in_agglo=None,
+            in_ipc=None, in_sect4=None, in_dwts=None, in_agglo=None, in_treated_field=None, in_overflow_field=None,
             ex_arable=None, ex_pasture=None, ex_atm_depo=None, ex_forest=None, ex_peat=None, ex_urban=None,
             ex_ipc=None, ex_sect4=None, ex_dwts=None, ex_agglo=None):
 
@@ -331,6 +331,14 @@ class ScenarioV3(Scenario):
         self._check_ex_or_in('dwts', ex_dwts, [in_dwts])
         self._check_ex_or_in('agglo', ex_agglo, [in_agglo])
 
+        # check whether required fields are provided
+        if not in_lc_field:
+            raise ValueError("The field 'in_lc_field' required for the forest, peat, and urban tools is not provided.")
+        if not in_treated_field:
+            raise ValueError("The field 'in_treated_field' required for the agglomeration wastewater tool.")
+        if not in_lc_field:
+            raise ValueError("The field 'in_overflow_field' required for the agglomeration wastewater tool.")
+
         # determine which location to work on
         if self.selection:  # i.e. selection requested
             self._msg.addMessage("> Selecting requested Location(s) within Region.")
@@ -344,7 +352,7 @@ class ScenarioV3(Scenario):
             out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v3_geoprocessing(
                 self.name, self.nutrient, location, in_lc_field,
                 in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
-                in_ipc, in_sect4, in_dwts, in_agglo,
+                in_ipc, in_sect4, in_dwts, in_agglo, in_treated_field, in_overflow_field,
                 ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
                 ex_ipc, ex_sect4, ex_dwts, ex_agglo,
                 out_gdb,

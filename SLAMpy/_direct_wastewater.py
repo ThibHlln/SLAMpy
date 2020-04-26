@@ -76,13 +76,33 @@ class WastewaterV2(object):
             category="Wastewater Data Settings")
         in_agglo.value = sep.join([in_gdb, 'SLAM_Agglom15_March17_IsMain'])
 
+        in_treated_field = arcpy.Parameter(
+            displayName="Field for Treated WWTP Outflow (include {} where it should be replaced by N or P)",
+            name="in_treated_field",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input",
+            category="Wastewater Data Settings")
+        in_treated_field.parameterDependencies = [in_agglo.name]
+        in_treated_field.value = "PointT{}"
+
+        in_overflow_field = arcpy.Parameter(
+            displayName="Field for WWTP Storm Overflow (include {} where it should be replaced by N or P)",
+            name="in_overflow_field",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input",
+            category="Wastewater Data Settings")
+        in_overflow_field.parameterDependencies = [in_agglo.name]
+        in_overflow_field.value = "T{}_SWO"
+
         return [out_gdb,
                 project_name, nutrient, region, selection,
-                in_agglo]
+                in_agglo, in_treated_field, in_overflow_field]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, project_name, nutrient, region, selection, in_agglo = \
+        out_gdb, project_name, nutrient, region, selection, in_agglo, in_treated_field, in_overflow_field = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
@@ -97,14 +117,16 @@ class WastewaterV2(object):
             location = region
 
         # run geoprocessing function
-        wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
+        wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, in_treated_field, in_overflow_field,
+                                    out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages,
+def wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, in_treated_field, in_overflow_field,
+                                out_gdb, messages,
                                 out_agglo=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
@@ -113,13 +135,17 @@ def wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_
     :type nutrient: str
     :param location: path of the feature class for the location of interest [required]
     :type location: str
-    :param in_agglo: path of the input feature class of the domestic septic tank systems data [required]
+    :param in_agglo: path of the input feature class of the wastewater treatment plants data [required]
     :type in_agglo: str
+    :param in_treated_field: name of the field in in_agglo to use for the WWTP treated outflow [required]
+    :type in_treated_field: str
+    :param in_overflow_field: name of the field in in_agglo to use for the WWTP storm overflow [required]
+    :type in_overflow_field: str
     :param out_gdb: path of the geodatabase where to store the output feature classes [required]
     :type out_gdb: str
     :param messages: object used for communication with the user interface [required]
     :type messages: instance of a class featuring a 'addMessage' method
-    :param out_agglo: path of the output feature class for domestic septic tank systems load [optional]
+    :param out_agglo: path of the output feature class for wastewater treatment plants load [optional]
     :type out_agglo: str
     """
     # calculate load for wastewater treatment plants
@@ -135,13 +161,13 @@ def wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_
     arcpy.AddField_management(in_table=out_agglo, field_name="SWOWast2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_agglo, field="SWOWast2calc",
-                                    expression="!T{}_SWO!".format(nutrient),
+                                    expression="!{}!".format(in_overflow_field).format(nutrient),
                                     expression_type="PYTHON_9.3")
 
     arcpy.AddField_management(in_table=out_agglo, field_name="Wast2calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_agglo, field="Wast2calc",
-                                    expression="!PointT{}!".format(nutrient),
+                                    expression="!{}!".format(in_treated_field).format(nutrient),
                                     expression_type="PYTHON_9.3")
 
     return out_agglo

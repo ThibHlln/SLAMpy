@@ -255,6 +255,26 @@ class LoadApportionmentV3(object):
             category="Wastewater Data Settings")
         in_agglo.value = sep.join([in_gdb, 'SLAM_Agglom15_March17_IsMain'])
 
+        in_treated_field = arcpy.Parameter(
+            displayName="Field for Treated WWTP Outflow (include {} where it should be replaced by N or P)",
+            name="in_treated_field",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input",
+            category="Wastewater Data Settings")
+        in_treated_field.parameterDependencies = [in_agglo.name]
+        in_treated_field.value = "!PointT{}!"
+
+        in_overflow_field = arcpy.Parameter(
+            displayName="Field for WWTP Storm Overflow (include {} where it should be replaced by N or P)",
+            name="in_overflow_field",
+            datatype="Field",
+            parameterType="Required",
+            direction="Input",
+            category="Wastewater Data Settings")
+        in_overflow_field.parameterDependencies = [in_agglo.name]
+        in_overflow_field.value = "!T{}_SWO!"
+
         ex_agglo = arcpy.Parameter(
             displayName="Existing output for WWTPs to use as a substitute to the tool",
             name="ex_agglo",
@@ -270,7 +290,7 @@ class LoadApportionmentV3(object):
                 in_land_cover, in_lc_field, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban,
                 in_ipc, in_sect4, ex_ipc, ex_sect4,
                 in_dwts, ex_dwts,
-                in_agglo, ex_agglo]
+                in_agglo, in_treated_field, in_overflow_field, ex_agglo]
 
     def execute(self, parameters, messages):
         # retrieve parameters
@@ -281,7 +301,7 @@ class LoadApportionmentV3(object):
             in_land_cover, in_lc_field, in_factors_n, in_factors_p, ex_forest, ex_peat, ex_urban, \
             in_ipc, in_sect4, ex_ipc, ex_sect4, \
             in_dwts, ex_dwts, \
-            in_agglo, ex_agglo = \
+            in_agglo, in_treated_field, in_overflow_field, ex_agglo = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
@@ -303,7 +323,7 @@ class LoadApportionmentV3(object):
             out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v3_geoprocessing(
                 project_name, nutrient, location, in_lc_field,
                 in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
-                in_ipc, in_sect4, in_dwts, in_agglo,
+                in_ipc, in_sect4, in_dwts, in_agglo, in_treated_field, in_overflow_field,
                 ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
                 ex_ipc, ex_sect4, ex_dwts, ex_agglo,
                 out_gdb, messages)
@@ -321,7 +341,7 @@ class LoadApportionmentV3(object):
 
 def load_apportionment_v3_geoprocessing(project_name, nutrient, location, in_lc_field,
                                         in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
-                                        in_ipc, in_sect4, in_dwts, in_agglo,
+                                        in_ipc, in_sect4, in_dwts, in_agglo, in_treated_field, in_overflow_field,
                                         ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
                                         ex_ipc, ex_sect4, ex_dwts, ex_agglo,
                                         out_gdb,
@@ -378,7 +398,8 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, in_lc_
         out_agglo = ex_agglo
     else:
         out_agglo = \
-            wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, out_gdb, messages)
+            wastewater_v2_geoprocessing(project_name, nutrient, location, in_agglo, in_treated_field, in_overflow_field,
+                                        out_gdb, messages)
 
     return (
         out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
