@@ -10,8 +10,7 @@ class WastewaterV2(object):
         self.description = """
         The wastewater discharges (or agglomeration) module calculates the emissions from wastewater treatment plants 
         (WWTPs) and Storm Water Overflows (SWOs, aka combined sewer overflow; CSO) using information reported in the 
-        annual environmental reports (AERs) where available, and otherwise make estimates using the best available 
-        information on the population equivalents (PE), influent concentrations, and flow rates.
+        pre-processed dataset where normal operation plant outflow and storm water overflow are in two separate fields.
         """
         self.canRunInBackground = False
 
@@ -180,7 +179,8 @@ class WastewaterV1(object):
         self.label = 'Wastewater [v{}]'.format(self.__version__)
         self.description = """
         The wastewater discharges (or agglomeration) module calculates the emissions from wastewater treatment plants 
-        (WWTPs) and Storm Water Overflows (SWOs, aka combined sewer overflow; CSO) estimates using the best available 
+        (WWTPs) and Storm Water Overflows (SWOs, aka combined sewer overflow; CSO) using information reported in the 
+        annual environmental reports (AERs) where available, and otherwise make estimates using the best available 
         information on the population equivalents (PE), influent concentrations, and flow rates.
         """
         self.canRunInBackground = False
