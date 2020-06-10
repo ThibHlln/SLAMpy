@@ -288,10 +288,10 @@ class Scenario(object):
 
 
 class ScenarioV4(Scenario):
-    def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
-        """Initialisation of a ScenarioV4 object.
+    """Scenario V4 is an object which allows to carry out the nutrient source load apportionment for a
+    given geographical area.
 
-        Scenario V4 relies on the following versions for each source:
+    Scenario V4 relies on the following versions for each source:
             * diffuse agriculture V2
             * atmospheric deposition V2
             * forestry V1
@@ -300,6 +300,10 @@ class ScenarioV4(Scenario):
             * industrial discharges V2
             * septic tank systems V2
             * wastewater discharges V3
+
+    """
+    def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
+        """Initialisation of a ScenarioV4 object.
 
         :Parameters:
 
@@ -414,7 +418,7 @@ class ScenarioV4(Scenario):
             in_arable: `str`
                 The location of the feature class (or shapefile)
                 containing the N and P export loads to surface waters
-                for arable (based on LPIS or Census 2010 data) –
+                for arable (based on LPIS or Census 2010 data) -
                 specially pre-processed for SLAM. Must contain fields:
                 'nSwFromGw', 'pSwFromGw', 'nTotaltoSWreceptor',
                 'pTotaltoSWreceptor'. Required for diffuse agriculture
@@ -426,7 +430,7 @@ class ScenarioV4(Scenario):
             in_pasture: `str`
                 The location of the feature class (or shapefile)
                 containing the N and P export loads to surface waters
-                for pasture (based on LPIS or Census 2010 data) –
+                for pasture (based on LPIS or Census 2010 data) -
                 specially pre-processed for SLAM. Must contain fields:
                 'nSwFromGw', 'pSwFromGw', 'nTotaltoSWreceptor',
                 'pTotaltoSWreceptor'. Required for diffuse agriculture
@@ -438,7 +442,7 @@ class ScenarioV4(Scenario):
             in_atm_depo: `str`
                 The location of the feature class (or shapefile)
                 containing the N and P atmospheric deposition on lakes
-                – specially pre-processed for SLAM. Must contain fields:
+                - specially pre-processed for SLAM. Must contain fields:
                 'N_Dep_tot', 'P_Dep_tot'. Required for atmospheric
                 deposition tool V2.
 
@@ -479,7 +483,7 @@ class ScenarioV4(Scenario):
             in_ipc: `str`
                 The location of the feature class (or shapefile)
                 containing the data for the IPC (Integrated Pollution
-                Control) licensed industries – specially pre-processed
+                Control) licensed industries - specially pre-processed
                 for SLAM. Must contain fields: 'N_2012_LAM',
                 'P_2012_LAM'. Required for industrial discharges
                 tool V2.
@@ -490,7 +494,7 @@ class ScenarioV4(Scenario):
             in_sect4: `str`
                 The location of the feature class (or shapefile)
                 containing the data for the Section licensed industries
-                – specially pre-processed for SLAM. Must contain fields:
+                - specially pre-processed for SLAM. Must contain fields:
                 'Flow__m3_d', 'Discharge_', 'TON_ELV', 'TN_ELV',
                 'NO3_ELV', 'NH3_ELV', 'NH4_ELV', 'NO2_ELV', 'TP_ELV',
                 'PO4_ELV'. Required for industrial discharges tool V2.
@@ -513,7 +517,7 @@ class ScenarioV4(Scenario):
                 of the treatment plant discharges as points and the
                 total N and P loads, where normal operation outflow
                 and storm water overflow are provided in separate
-                entries in the attribute table – specially pre-processed
+                entries in the attribute table - specially pre-processed
                 for SLAM. Must contain field *in_uww_field*. Required
                 for wastewater discharges tool V3.
 
@@ -709,18 +713,22 @@ class ScenarioV4(Scenario):
 
 
 class ScenarioV3(Scenario):
+    """Scenario V3 is an object which allows to carry out the nutrient source load apportionment for a
+    given geographical area.
+
+    Scenario V3 relies on the following versions for each source:
+        * diffuse agriculture V2
+        * atmospheric deposition V2
+        * forestry V1
+        * peatlands V1
+        * diffuse urban emissions V1
+        * industrial discharges V2
+        * septic tank systems V2
+        * wastewater discharges V2
+    """
+
     def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
         """Initialisation of a ScenarioV3 object.
-
-        Scenario V3 relies on the following versions for each source:
-            * diffuse agriculture V2
-            * atmospheric deposition V2
-            * forestry V1
-            * peatlands V1
-            * diffuse urban emissions V1
-            * industrial discharges V2
-            * septic tank systems V2
-            * wastewater discharges V2
 
         :Parameters:
 
@@ -834,7 +842,7 @@ class ScenarioV3(Scenario):
             in_arable: `str`
                 The location of the feature class (or shapefile)
                 containing the N and P export loads to surface waters
-                for arable (based on LPIS or Census 2010 data) –
+                for arable (based on LPIS or Census 2010 data) -
                 specially pre-processed for SLAM. Must contain fields:
                 'nSwFromGw', 'pSwFromGw', 'nTotaltoSWreceptor',
                 'pTotaltoSWreceptor'. Required for diffuse agriculture
@@ -846,7 +854,7 @@ class ScenarioV3(Scenario):
             in_pasture: `str`
                 The location of the feature class (or shapefile)
                 containing the N and P export loads to surface waters
-                for pasture (based on LPIS or Census 2010 data) –
+                for pasture (based on LPIS or Census 2010 data) -
                 specially pre-processed for SLAM. Must contain fields:
                 'nSwFromGw', 'pSwFromGw', 'nTotaltoSWreceptor',
                 'pTotaltoSWreceptor'. Required for diffuse agriculture
@@ -858,7 +866,7 @@ class ScenarioV3(Scenario):
             in_atm_depo: `str`
                 The location of the feature class (or shapefile)
                 containing the N and P atmospheric deposition on lakes
-                – specially pre-processed for SLAM. Must contain fields:
+                - specially pre-processed for SLAM. Must contain fields:
                 'N_Dep_tot', 'P_Dep_tot'. Required for atmospheric
                 deposition tool V2.
 
@@ -899,7 +907,7 @@ class ScenarioV3(Scenario):
             in_ipc: `str`
                 The location of the feature class (or shapefile)
                 containing the data for the IPC (Integrated Pollution
-                Control) licensed industries – specially pre-processed
+                Control) licensed industries - specially pre-processed
                 for SLAM. Must contain fields: 'N_2012_LAM',
                 'P_2012_LAM'. Required for industrial discharges
                 tool V2.
@@ -910,7 +918,7 @@ class ScenarioV3(Scenario):
             in_sect4: `str`
                 The location of the feature class (or shapefile)
                 containing the data for the Section licensed industries
-                – specially pre-processed for SLAM. Must contain fields:
+                - specially pre-processed for SLAM. Must contain fields:
                 'Flow__m3_d', 'Discharge_', 'TON_ELV', 'TN_ELV',
                 'NO3_ELV', 'NH3_ELV', 'NH4_ELV', 'NO2_ELV', 'TP_ELV',
                 'PO4_ELV'. Required for industrial discharges tool V2.
@@ -932,7 +940,7 @@ class ScenarioV3(Scenario):
                 containing the WWTP information, including the location
                 of the treatment plant discharges as points, the
                 treatment levels, the population equivalent, and
-                possibly AER information – specially pre-processed
+                possibly AER information - specially pre-processed
                 for SLAM. Must contain fields *in_treated_field* and
                 *in_overflow_field*. Required for wastewater discharges
                 tool V2.
