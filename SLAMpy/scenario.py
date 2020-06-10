@@ -289,9 +289,76 @@ class Scenario(object):
 
 class ScenarioV4(Scenario):
     def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
+        """Initialisation of a ScenarioV4 object.
+
+        Scenario V4 relies on the following versions for each source:
+            * diffuse agriculture V2
+            * atmospheric deposition V2
+            * forestry V1
+            * peatlands V1
+            * diffuse urban emissions V1
+            * industrial discharges V2
+            * septic tank systems V2
+            * wastewater discharges V3
+
+        :Parameters:
+
+            name: `str`
+                The identifier for the scenario. All output feature
+                class names will use this identifier as their leading
+                part.
+
+                    *Parameter example:*
+                        ``name='AvocaCatchment'``
+                        ``name='EasternRiverBasinDistrict'``
+
+            nutrient: `str`
+                The nutrient for which load apportionment is sought. It
+                can either 'N' for Nitrogen or 'P' for Phosphorus.
+
+                    *Parameter example:*
+                        ``nutrient='N'``
+                        ``nutrient='P'``
+
+            sort_field: `str`
+                The name of the field in the *region* feature class that
+                will be used to sort the output results into
+                sub-regions (e.g. river sub-basins in a given
+                catchment).
+
+                    *Parameter example:*
+                        ``sort_field='EU_CD'``
+
+            region: `str`
+                The location of the feature class (or shapefile) that
+                delineates the area for which load apportionment is
+                sought.
+
+                    *Parameter example:*
+                        ``region='SLAMpy/in/input.gdb/MyRegion'``
+                        ``region='SLAMpy/in/MyRegion.shp'``
+
+            selection: `str`, optional
+                A valid SQL query to further delineate the area within
+                the area delineated in *region*. If not provided, no
+                further delineation is carried out.
+
+                    *Parameter example:*
+                        ``selection="EU_CD = 'IE_EA_09L010700' OR EU_CD = 'IE_EA_09L010600'"``
+
+            overwrite: `bool`, optional
+                A switch to decide whether the overwriting of existing
+                files is permitted or not. Set to `True` if permitted,
+                set to `False` if forbidden. If not provided, the
+                default behaviour is to allow overwriting existing
+                files.
+
+                    *Parameter example:*
+                        ``overwrite=False``
+        """
 
         super(ScenarioV4, self).__init__(name, nutrient, overwrite)
-        self.__version__ = '3'
+        self.__version__ = '4'
 
         self.sort_field = sort_field
         self.region = region
@@ -315,6 +382,227 @@ class ScenarioV4(Scenario):
             in_ipc=None, in_sect4=None, in_dwts=None, in_agglo=None, in_uww_field=None,
             ex_arable=None, ex_pasture=None, ex_atm_depo=None, ex_forest=None, ex_peat=None, ex_urban=None,
             ex_ipc=None, ex_sect4=None, ex_dwts=None, ex_agglo=None):
+        """Run the geo-processing tools to determine the source load
+        apportionment for the given nutrient in the given region.
+
+        The following tool versions for each source will be used:
+            * diffuse agriculture V2
+            * atmospheric deposition V2
+            * forestry V1
+            * peatlands V1
+            * diffuse urban emissions V1
+            * industrial discharges V2
+            * septic tank systems V2
+            * wastewater discharges V3
+        Note, for each tool, either the input for a run from scratch, or
+        the existing outputs for a run from existing must be provided.
+
+        The post-processing tool used will be:
+            * post-processing V4
+
+        :Parameters:
+
+            out_gdb: `str`
+                The location of the geodatabase where all output feature
+                classes will be written.
+
+                    *Parameter example:*
+                        ``out_gdb='SLAMpy/out/output.gdb'``
+
+            *Running from scratch*
+
+            in_arable: `str`
+                The location of the feature class (or shapefile)
+                containing the N and P export loads to surface waters
+                for arable (based on LPIS or Census 2010 data) –
+                specially pre-processed for SLAM. Must contain fields:
+                'nSwFromGw', 'pSwFromGw', 'nTotaltoSWreceptor',
+                'pTotaltoSWreceptor'. Required for diffuse agriculture
+                tool V2.
+
+                    *Parameter example:*
+                        ``in_arable='SLAMpy/in/input.gdb/PathwaysCCT_IRL_Arable_LPIS'``
+
+            in_pasture: `str`
+                The location of the feature class (or shapefile)
+                containing the N and P export loads to surface waters
+                for pasture (based on LPIS or Census 2010 data) –
+                specially pre-processed for SLAM. Must contain fields:
+                'nSwFromGw', 'pSwFromGw', 'nTotaltoSWreceptor',
+                'pTotaltoSWreceptor'. Required for diffuse agriculture
+                tool V2.
+
+                    *Parameter example:*
+                        ``in_pasture='SLAMpy/in/input.gdb/PathwaysCCT_IRL_Pasture_LPIS'``
+
+            in_atm_depo: `str`
+                The location of the feature class (or shapefile)
+                containing the N and P atmospheric deposition on lakes
+                – specially pre-processed for SLAM. Must contain fields:
+                'N_Dep_tot', 'P_Dep_tot'. Required for atmospheric
+                deposition tool V2.
+
+                    *Parameter example:*
+                        ``in_atm_depo='SLAMpy/in/input.gdb/AtmosDep_Lakes'``
+
+            in_land_cover: `str`
+                The location of the feature class (or shapefile)
+                containing the Corine land cover dataset. Must contain
+                fields: [for urban:] 'c111', 'c112', 'c121', 'c122',
+                'c133', 'c141', 'c142', [for forestry:] 'c311', 'c312',
+                'c313', 'c324', [for peatlands:] 'c411', 'c412'.
+                Required for diffuse urban emissions tool V1, forestry
+                tool V1, and peatlands tool V1.
+
+                    *Parameter example:*
+                        ``in_land_cover='SLAMpy/in/input.gdb/CLC18_IE'``
+            
+            in_lc_field: `str`
+                The name of the field in the *in_land_cover* dataset
+                that identifies the different Corine land cover types.
+                Required for diffuse urban emissions tool V1, forestry
+                tool V1, and peatlands tool V1.
+
+                    *Parameter example:*
+                        ``in_lc_field='CODE_18'``
+            
+            in_factors: `str`
+                The location of the spreadsheet containing the export
+                factors from the different land cover types (for N or
+                for P). Required for diffuse urban emissions tool V1,
+                forestry tool V1, and peatlands tool V1.
+
+                    *Parameter example:*
+                        ``in_factors='SLAMpy\in\LAM_Factors.xlsx\Corine_N$'``
+                        ``in_factors='SLAMpy\in\LAM_Factors.xlsx\Corine_P$'``
+
+            in_ipc: `str`
+                The location of the feature class (or shapefile)
+                containing the data for the IPC (Integrated Pollution
+                Control) licensed industries – specially pre-processed
+                for SLAM. Must contain fields: 'N_2012_LAM',
+                'P_2012_LAM'. Required for industrial discharges
+                tool V2.
+
+                    *Parameter example:*
+                        ``in_ipc='SLAMpy/in/input.gdb/IPPC_Loads_LAM2'``
+
+            in_sect4: `str`
+                The location of the feature class (or shapefile)
+                containing the data for the Section licensed industries
+                – specially pre-processed for SLAM. Must contain fields:
+                'Flow__m3_d', 'Discharge_', 'TON_ELV', 'TN_ELV',
+                'NO3_ELV', 'NH3_ELV', 'NH4_ELV', 'NO2_ELV', 'TP_ELV',
+                'PO4_ELV'. Required for industrial discharges tool V2.
+
+                    *Parameter example:*
+                        ``in_sect4='SLAMpy/in/input.gdb/Section4Discharges_D07_IsMain'``
+            
+            in_dwts: `str`
+                The location of the feature class (or shapefile)
+                containing the data generated by the SANICOSE model.
+                Must contain fields: 'GW_N_2c', 'GW_P_2c', 'Total_N_2c',
+                'Total_P_2c'. Required for septic tank systems tool V2.
+
+                    *Parameter example:*
+                        ``in_dwts='SLAMpy/in/input.gdb/SepticTankSystems_LoadModel17'``
+            
+            in_agglo: `str`
+                The location of the feature class (or shapefile)
+                containing the WWTP information, including the location
+                of the treatment plant discharges as points and the
+                total N and P loads, where normal operation outflow
+                and storm water overflow are provided in separate
+                entries in the attribute table – specially pre-processed
+                for SLAM. Must contain field *in_uww_field*. Required
+                for wastewater discharges tool V3.
+
+                    *Parameter example:*
+                        ``in_agglo='SLAMpy/in/input.gdb/UWW_EmissionPointData_2016'``
+
+            in_uww_field: `str`
+                The name of the field in the *in_agglo* dataset that
+                provides the total annual load from wastewater
+                in kg/year. The string must feature {} where the
+                character N or P needs to be inserted (to distinguish
+                the N load from the P load contained in the same
+                dataset). Required for wastewater discharges tool V3.
+
+                    *Parameter example:*
+                        ``in_uww_field='T{}2016_Kgyr'``
+
+            *Running from existing*
+
+            ex_arable: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for arable using
+                the diffuse agriculture tool V2 for the given *nutrient*
+                and the given *region*. Must contain fields:
+                'GWArab2calc', 'Arab2calc'. Must be provided alongside
+                *ex_pasture* otherwise run from existing is impossible.
+
+            ex_pasture: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for arable using
+                the diffuse agriculture tool V2 for the given *nutrient*
+                and the given *region*. Must contain fields:
+                'GWPast2calc', 'Past2calc'. Must be provided alongside
+                *ex_arable* otherwise run from existing is impossible.
+            
+            ex_atm_depo: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for atmospheric
+                deposition using the atmospheric deposition tool V2
+                for the given *nutrient* and the given *region*. Must
+                contain fields: 'Atm2calc'.
+            
+            ex_forest: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for forestry tool
+                V1 for the given *nutrient* and the given *region*.
+                Must contain fields: 'For1calc'.
+            
+            ex_peat: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for peatlands using
+                the peatlands tool V1 for the given *nutrient* and the
+                given *region*. Must contain fields: 'Peat1calc'.
+            
+            ex_urban: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for diffuse urban
+                emissiong using the diffuse urban emissions tool V1 for
+                the given *nutrient* and the given *region*. Must
+                contain fields: 'Urb1calc'.
+            
+            ex_ipc: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for IPC licensed
+                industries load using the industrial discharges tool V2.
+                Must contain fields: 'IPInd2calc'. Must be provided
+                alongside *ex_sect4* otherwise run from existing is
+                impossible.
+            
+            ex_sect4: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for section 4
+                licensed industries load using the industrial discharges
+                tool V2.  Must contain fields: 'S4Ind2calc'. Must be
+                provided alongside *ex_ipc* otherwise run from
+                existing is impossible.
+            
+            ex_dwts: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for domestic septic
+                tank systems load using the septic tank systems tool V2.
+                Must contain fields: 'GWSept2calc', 'Sept2calc'.
+            
+            ex_agglo: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for the urban
+                wastewater treatment plants load using the wastewater
+                discharges tool V3. Must contain fields: 'Wast3calc'.
+        """
 
         # check whether the output geodatabase provided as a string is actually one
         if not arcpy.Describe(out_gdb).dataType == "Workspace":
@@ -389,7 +677,6 @@ class ScenarioV4(Scenario):
 
     @staticmethod
     def _check_ex_or_in(category, existing, inputs):
-
         # check if existing outputs or corresponding inputs were provided for the given load category
         if not existing:  # if not reusing existing, must provide corresponding inputs
             for input_ in inputs:
@@ -423,7 +710,73 @@ class ScenarioV4(Scenario):
 
 class ScenarioV3(Scenario):
     def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
+        """Initialisation of a ScenarioV3 object.
 
+        Scenario V3 relies on the following versions for each source:
+            * diffuse agriculture V2
+            * atmospheric deposition V2
+            * forestry V1
+            * peatlands V1
+            * diffuse urban emissions V1
+            * industrial discharges V2
+            * septic tank systems V2
+            * wastewater discharges V2
+
+        :Parameters:
+
+            name: `str`
+                The identifier for the scenario. All output feature
+                class names will use this identifier as their leading
+                part.
+
+                    *Parameter example:*
+                        ``name='AvocaCatchment'``
+                        ``name='EasternRiverBasinDistrict'``
+
+            nutrient: `str`
+                The nutrient for which load apportionment is sought. It
+                can either 'N' for Nitrogen or 'P' for Phosphorus.
+
+                    *Parameter example:*
+                        ``nutrient='N'``
+                        ``nutrient='P'``
+
+            sort_field: `str`
+                The name of the field in the *region* feature class that
+                will be used to sort the output results into
+                sub-regions (e.g. river sub-basins in a given
+                catchment).
+
+                    *Parameter example:*
+                        ``sort_field='EU_CD'``
+
+            region: `str`
+                The location of the feature class (or shapefile) that
+                delineates the area for which load apportionment is
+                sought.
+
+                    *Parameter example:*
+                        ``region='SLAMpy/in/input.gdb/MyRegion'``
+                        ``region='SLAMpy/in/MyRegion.shp'``
+
+            selection: `str`, optional
+                A valid SQL query to further delineate the area within
+                the area delineated in *region*. If not provided, no
+                further delineation is carried out.
+
+                    *Parameter example:*
+                        ``selection="EU_CD = 'IE_EA_09L010700' OR EU_CD = 'IE_EA_09L010600'"``
+
+            overwrite: `bool`, optional
+                A switch to decide whether the overwriting of existing
+                files is permitted or not. Set to `True` if permitted,
+                set to `False` if forbidden. If not provided, the
+                default behaviour is to allow overwriting existing
+                files.
+
+                    *Parameter example:*
+                        ``overwrite=False``
+        """
         super(ScenarioV3, self).__init__(name, nutrient, overwrite)
         self.__version__ = '3'
 
@@ -449,7 +802,239 @@ class ScenarioV3(Scenario):
             in_ipc=None, in_sect4=None, in_dwts=None, in_agglo=None, in_treated_field=None, in_overflow_field=None,
             ex_arable=None, ex_pasture=None, ex_atm_depo=None, ex_forest=None, ex_peat=None, ex_urban=None,
             ex_ipc=None, ex_sect4=None, ex_dwts=None, ex_agglo=None):
+        """Run the geo-processing tools to determine the source load
+        apportionment for the given nutrient in the given region.
 
+        The following tool versions for each source will be used:
+            * diffuse agriculture V2
+            * atmospheric deposition V2
+            * forestry V1
+            * peatlands V1
+            * diffuse urban emissions V1
+            * industrial discharges V2
+            * septic tank systems V2
+            * wastewater discharges V2
+        Note, for each tool, either the input for a run from scratch, or
+        the existing outputs for a run from existing must be provided.
+
+        The post-processing tool used will be:
+            * post-processing V4
+
+        :Parameters:
+
+            out_gdb: `str`
+                The location of the geodatabase where all output feature
+                classes will be written.
+
+                    *Parameter example:*
+                        ``out_gdb='SLAMpy/out/output.gdb'``
+
+            *Running from scratch*
+
+            in_arable: `str`
+                The location of the feature class (or shapefile)
+                containing the N and P export loads to surface waters
+                for arable (based on LPIS or Census 2010 data) –
+                specially pre-processed for SLAM. Must contain fields:
+                'nSwFromGw', 'pSwFromGw', 'nTotaltoSWreceptor',
+                'pTotaltoSWreceptor'. Required for diffuse agriculture
+                tool V2.
+
+                    *Parameter example:*
+                        ``in_arable='SLAMpy/in/input.gdb/PathwaysCCT_IRL_Arable_LPIS'``
+
+            in_pasture: `str`
+                The location of the feature class (or shapefile)
+                containing the N and P export loads to surface waters
+                for pasture (based on LPIS or Census 2010 data) –
+                specially pre-processed for SLAM. Must contain fields:
+                'nSwFromGw', 'pSwFromGw', 'nTotaltoSWreceptor',
+                'pTotaltoSWreceptor'. Required for diffuse agriculture
+                tool V2.
+
+                    *Parameter example:*
+                        ``in_pasture='SLAMpy/in/input.gdb/PathwaysCCT_IRL_Pasture_LPIS'``
+
+            in_atm_depo: `str`
+                The location of the feature class (or shapefile)
+                containing the N and P atmospheric deposition on lakes
+                – specially pre-processed for SLAM. Must contain fields:
+                'N_Dep_tot', 'P_Dep_tot'. Required for atmospheric
+                deposition tool V2.
+
+                    *Parameter example:*
+                        ``in_atm_depo='SLAMpy/in/input.gdb/AtmosDep_Lakes'``
+
+            in_land_cover: `str`
+                The location of the feature class (or shapefile)
+                containing the Corine land cover dataset. Must contain
+                fields: [for urban:] 'c111', 'c112', 'c121', 'c122',
+                'c133', 'c141', 'c142', [for forestry:] 'c311', 'c312',
+                'c313', 'c324', [for peatlands:] 'c411', 'c412'.
+                Required for diffuse urban emissions tool V1, forestry
+                tool V1, and peatlands tool V1.
+
+                    *Parameter example:*
+                        ``in_land_cover='SLAMpy/in/input.gdb/CLC18_IE'``
+
+            in_lc_field: `str`
+                The name of the field in the *in_land_cover* dataset
+                that identifies the different Corine land cover types.
+                Required for diffuse urban emissions tool V1, forestry
+                tool V1, and peatlands tool V1.
+
+                    *Parameter example:*
+                        ``in_lc_field='CODE_18'``
+
+            in_factors: `str`
+                The location of the spreadsheet containing the export
+                factors from the different land cover types (for N or
+                for P). Required for diffuse urban emissions tool V1,
+                forestry tool V1, and peatlands tool V1.
+
+                    *Parameter example:*
+                        ``in_factors='SLAMpy\in\LAM_Factors.xlsx\Corine_N$'``
+                        ``in_factors='SLAMpy\in\LAM_Factors.xlsx\Corine_P$'``
+
+            in_ipc: `str`
+                The location of the feature class (or shapefile)
+                containing the data for the IPC (Integrated Pollution
+                Control) licensed industries – specially pre-processed
+                for SLAM. Must contain fields: 'N_2012_LAM',
+                'P_2012_LAM'. Required for industrial discharges
+                tool V2.
+
+                    *Parameter example:*
+                        ``in_ipc='SLAMpy/in/input.gdb/IPPC_Loads_LAM2'``
+
+            in_sect4: `str`
+                The location of the feature class (or shapefile)
+                containing the data for the Section licensed industries
+                – specially pre-processed for SLAM. Must contain fields:
+                'Flow__m3_d', 'Discharge_', 'TON_ELV', 'TN_ELV',
+                'NO3_ELV', 'NH3_ELV', 'NH4_ELV', 'NO2_ELV', 'TP_ELV',
+                'PO4_ELV'. Required for industrial discharges tool V2.
+
+                    *Parameter example:*
+                        ``in_sect4='SLAMpy/in/input.gdb/Section4Discharges_D07_IsMain'``
+
+            in_dwts: `str`
+                The location of the feature class (or shapefile)
+                containing the data generated by the SANICOSE model.
+                Must contain fields: 'GW_N_2c', 'GW_P_2c', 'Total_N_2c',
+                'Total_P_2c'. Required for septic tank systems tool V2.
+
+                    *Parameter example:*
+                        ``in_dwts='SLAMpy/in/input.gdb/SepticTankSystems_LoadModel17'``
+
+            in_agglo: `str`
+                The location of the feature class (or shapefile)
+                containing the WWTP information, including the location
+                of the treatment plant discharges as points, the
+                treatment levels, the population equivalent, and
+                possibly AER information – specially pre-processed
+                for SLAM. Must contain fields *in_treated_field* and
+                *in_overflow_field*. Required for wastewater discharges
+                tool V2.
+
+                    *Parameter example:*
+                        ``in_agglo='SLAMpy/in/input.gdb/SLAM_Agglom15_March17_IsMain'``
+
+            in_treated_field: `str`
+                The name of the field in the *in_agglo* dataset that
+                provides the total annual load from normal operation
+                treated outflow. The string must feature {} where the
+                character N or P needs to be inserted (to distinguish
+                the N load from the P load contained in the same
+                dataset). Required for wastewater discharges tool V2.
+
+                    *Parameter example:*
+                        ``in_treated_field='PointT{}'``
+
+            in_overflow_field: `str`
+                The name of the field in the *in_agglo* dataset that
+                provides the total annual load from storm water
+                overflow. The string must feature {} where the character
+                N or P needs to be inserted (to distinguish the N load
+                from the P load contained in the same dataset). Required
+                for wastewater discharges tool V2.
+
+                    *Parameter example:*
+                        ``in_overflow_field='T{}_SWO'``
+
+            *Running from existing*
+
+            ex_arable: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for arable using
+                the diffuse agriculture tool V2 for the given *nutrient*
+                and the given *region*. Must contain fields:
+                'GWArab2calc', 'Arab2calc'. Must be provided alongside
+                *ex_pasture* otherwise run from existing is impossible.
+
+            ex_pasture: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for arable using
+                the diffuse agriculture tool V2 for the given *nutrient*
+                and the given *region*. Must contain fields:
+                'GWPast2calc', 'Past2calc'. Must be provided alongside
+                *ex_arable* otherwise run from existing is impossible.
+
+            ex_atm_depo: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for atmospheric
+                deposition using the atmospheric deposition tool V2
+                for the given *nutrient* and the given *region*. Must
+                contain fields: 'Atm2calc'.
+
+            ex_forest: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for forestry tool
+                V1 for the given *nutrient* and the given *region*.
+                Must contain fields: 'For1calc'.
+
+            ex_peat: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for peatlands using
+                the peatlands tool V1 for the given *nutrient* and the
+                given *region*. Must contain fields: 'Peat1calc'.
+
+            ex_urban: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for diffuse urban
+                emissiong using the diffuse urban emissions tool V1 for
+                the given *nutrient* and the given *region*. Must
+                contain fields: 'Urb1calc'.
+
+            ex_ipc: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for IPC licensed
+                industries load using the industrial discharges tool V2.
+                Must contain fields: 'IPInd2calc'. Must be provided
+                alongside *ex_sect4* otherwise run from existing is
+                impossible.
+
+            ex_sect4: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for section 4
+                licensed industries load using the industrial discharges
+                tool V2.  Must contain fields: 'S4Ind2calc'. Must be
+                provided alongside *ex_ipc* otherwise run from
+                existing is impossible.
+
+            ex_dwts: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for domestic septic
+                tank systems load using the septic tank systems tool V2.
+                Must contain fields: 'GWSept2calc', 'Sept2calc'.
+
+            ex_agglo: `str`
+                The location of the feature class (or shapefile)
+                corresponding to the existing output for the urban
+                wastewater treatment plants load using the wastewater
+                discharges tool V2. Must contain fields: 'SWOWast2calc',
+                'Wast2calc'.
+        """
         # check whether the output geodatabase provided as a string is actually one
         if not arcpy.Describe(out_gdb).dataType == "Workspace":
             raise TypeError("The output geodatabase is not a valid ArcGIS workspace.")
