@@ -83,7 +83,6 @@ class WastewaterV3(object):
             parameterType="Required",
             direction="Input",
             category="Wastewater Data Settings")
-        in_uww_field.parameterDependencies = [in_agglo.name]
         in_uww_field.value = "T{}2016_Kgyr"
 
         return [out_gdb,
@@ -235,7 +234,6 @@ class WastewaterV2(object):
             parameterType="Required",
             direction="Input",
             category="Wastewater Data Settings")
-        in_treated_field.parameterDependencies = [in_agglo.name]
         in_treated_field.value = "PointT{}"
 
         in_overflow_field = arcpy.Parameter(
@@ -245,7 +243,6 @@ class WastewaterV2(object):
             parameterType="Required",
             direction="Input",
             category="Wastewater Data Settings")
-        in_overflow_field.parameterDependencies = [in_agglo.name]
         in_overflow_field.value = "T{}_SWO"
 
         return [out_gdb,
