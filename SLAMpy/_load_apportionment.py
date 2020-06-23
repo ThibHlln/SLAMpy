@@ -11,9 +11,9 @@ from _direct_septic_tanks import septic_v2_geoprocessing
 from _direct_wastewater import wastewater_v2_geoprocessing, wastewater_v3_geoprocessing
 
 
-class LoadApportionmentV4(object):
+class LoadApportionmentV3(object):
     def __init__(self):
-        self.__version__ = '4'
+        self.__version__ = '3'
         self.label = 'Source Load Apportionment [v{}]'.format(self.__version__)
         self.description = "Calculates the nutrient (N or P) loads from all diffuse and point sources."
         self.canRunInBackground = False
@@ -310,7 +310,7 @@ class LoadApportionmentV4(object):
 
         # run geoprocessing functions for each source load
         (out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
-            out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v4_geoprocessing(
+            out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v3_geoprocessing(
                 project_name, nutrient, location, in_lc_field,
                 in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
                 in_ipc, in_sect4, in_dwts, in_agglo, in_uww_field,
@@ -319,7 +319,7 @@ class LoadApportionmentV4(object):
                 out_gdb, messages)
 
         # run geoprocessing functions for load apportionment
-        load_apportionment_v4_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
+        load_apportionment_v3_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
                                                 out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
                                                 out_ipc, out_sect4, out_dwts, out_agglo,
                                                 messages)
@@ -329,7 +329,7 @@ class LoadApportionmentV4(object):
             arcpy.Delete_management(location)
 
 
-def load_apportionment_v4_geoprocessing(project_name, nutrient, location, in_lc_field,
+def load_apportionment_v3_geoprocessing(project_name, nutrient, location, in_lc_field,
                                         in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
                                         in_ipc, in_sect4, in_dwts, in_agglo, in_uww_field,
                                         ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
@@ -397,7 +397,7 @@ def load_apportionment_v4_geoprocessing(project_name, nutrient, location, in_lc_
     )
 
 
-def load_apportionment_v4_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
+def load_apportionment_v3_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
                                             out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
                                             out_ipc, out_sect4, out_dwts, out_agglo,
                                             messages,
@@ -491,9 +491,9 @@ def load_apportionment_v4_stats_and_summary(project_name, nutrient, location, so
     return out_summary
 
 
-class LoadApportionmentV3(object):
+class LoadApportionmentV2(object):
     def __init__(self):
-        self.__version__ = '3'
+        self.__version__ = '2'
         self.label = 'Source Load Apportionment [v{}]'.format(self.__version__)
         self.description = "Calculates the nutrient (N or P) loads from all diffuse and point sources."
         self.canRunInBackground = False
@@ -800,7 +800,7 @@ class LoadApportionmentV3(object):
 
         # run geoprocessing functions for each source load
         (out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
-            out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v3_geoprocessing(
+            out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v2_geoprocessing(
                 project_name, nutrient, location, in_lc_field,
                 in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
                 in_ipc, in_sect4, in_dwts, in_agglo, in_treated_field, in_overflow_field,
@@ -809,7 +809,7 @@ class LoadApportionmentV3(object):
                 out_gdb, messages)
 
         # run geoprocessing functions for load apportionment
-        load_apportionment_v3_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
+        load_apportionment_v2_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
                                                 out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
                                                 out_ipc, out_sect4, out_dwts, out_agglo,
                                                 messages)
@@ -819,7 +819,7 @@ class LoadApportionmentV3(object):
             arcpy.Delete_management(location)
 
 
-def load_apportionment_v3_geoprocessing(project_name, nutrient, location, in_lc_field,
+def load_apportionment_v2_geoprocessing(project_name, nutrient, location, in_lc_field,
                                         in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
                                         in_ipc, in_sect4, in_dwts, in_agglo, in_treated_field, in_overflow_field,
                                         ex_arable, ex_pasture, ex_atm_depo, ex_forest, ex_peat, ex_urban,
@@ -887,7 +887,7 @@ def load_apportionment_v3_geoprocessing(project_name, nutrient, location, in_lc_
     )
 
 
-def load_apportionment_v3_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
+def load_apportionment_v2_stats_and_summary(project_name, nutrient, location, sort_field, out_gdb,
                                             out_arable, out_pasture, out_atm_depo, out_forest, out_peat, out_urban,
                                             out_ipc, out_sect4, out_dwts, out_agglo,
                                             messages,

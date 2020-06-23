@@ -5,9 +5,9 @@ from os import sep
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 
-from ._load_apportionment import load_apportionment_v3_geoprocessing, load_apportionment_v3_stats_and_summary, \
-    load_apportionment_v4_geoprocessing, load_apportionment_v4_stats_and_summary
-from ._post_processing import postprocessing_v3_geoprocessing, postprocessing_v4_geoprocessing
+from ._load_apportionment import load_apportionment_v2_geoprocessing, load_apportionment_v2_stats_and_summary, \
+    load_apportionment_v3_geoprocessing, load_apportionment_v3_stats_and_summary
+from ._post_processing import postprocessing_v2_geoprocessing, postprocessing_v3_geoprocessing
 
 
 _area_header_arcmap = ['AREAKM2']
@@ -287,11 +287,11 @@ class Scenario(object):
         return instance
 
 
-class ScenarioV4(Scenario):
-    """Scenario V4 is an object which allows to carry out the nutrient source load apportionment for a
+class ScenarioV3(Scenario):
+    """Scenario V3 is an object which allows to carry out the nutrient source load apportionment for a
     given geographical area.
 
-    Scenario V4 relies on the following versions for each source:
+    Scenario V3 relies on the following versions for each source:
             * diffuse agriculture V2
             * atmospheric deposition V2
             * forestry V1
@@ -303,7 +303,7 @@ class ScenarioV4(Scenario):
 
     """
     def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
-        """Initialisation of a ScenarioV4 object.
+        """Initialisation of a ScenarioV3 object.
 
         :Parameters:
 
@@ -361,8 +361,8 @@ class ScenarioV4(Scenario):
                         ``overwrite=False``
         """
 
-        super(ScenarioV4, self).__init__(name, nutrient, overwrite)
-        self.__version__ = '4'
+        super(ScenarioV3, self).__init__(name, nutrient, overwrite)
+        self.__version__ = '3'
 
         self.sort_field = sort_field
         self.region = region
@@ -402,7 +402,7 @@ class ScenarioV4(Scenario):
         the existing outputs for a run from existing must be provided.
 
         The post-processing tool used will be:
-            * post-processing V4
+            * post-processing V3
 
         :Parameters:
 
@@ -640,7 +640,7 @@ class ScenarioV4(Scenario):
 
         # run geoprocessing functions for each source load
         (out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
-            out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v4_geoprocessing(
+            out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v3_geoprocessing(
                 self.name, self.nutrient, location, in_lc_field,
                 in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
                 in_ipc, in_sect4, in_dwts, in_agglo, in_uww_field,
@@ -650,7 +650,7 @@ class ScenarioV4(Scenario):
                 self._msg)
 
         # run geoprocessing functions for load apportionment
-        out_summary = load_apportionment_v4_stats_and_summary(
+        out_summary = load_apportionment_v3_stats_and_summary(
             self.name, self.nutrient, location, self.sort_field, out_gdb,
             out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
             out_urban, out_ipc, out_sect4, out_dwts, out_agglo,
@@ -673,7 +673,7 @@ class ScenarioV4(Scenario):
         self._outputs['agglo'] = out_agglo
 
         # run postprocessing
-        postprocessing_v4_geoprocessing(self.name, self.nutrient, out_gdb, self._msg, out_summary=out_summary)
+        postprocessing_v3_geoprocessing(self.name, self.nutrient, out_gdb, self._msg, out_summary=out_summary)
 
         # collect areas and loads as pandas DataFrames
         self.areas = self._get_areas_dataframe(out_summary, self.sort_field, _area_header_arcmap)
@@ -691,7 +691,7 @@ class ScenarioV4(Scenario):
                         raise ValueError("The input '{}' does not exist for {}.".format(input_, category))
         else:
             # check if existing is provided by reusing a Scenario instance with a compatible version, if so, proceed
-            if isinstance(existing, ScenarioV3):
+            if isinstance(existing, ScenarioV2):
                 existing = existing._outputs[category]
                 if not arcpy.Exists(existing):
                     raise ValueError(
@@ -712,11 +712,11 @@ class ScenarioV4(Scenario):
                                 "an instance of a Scenario: neither of these was provided for {}.".format(category))
 
 
-class ScenarioV3(Scenario):
-    """Scenario V3 is an object which allows to carry out the nutrient source load apportionment for a
+class ScenarioV2(Scenario):
+    """Scenario V2 is an object which allows to carry out the nutrient source load apportionment for a
     given geographical area.
 
-    Scenario V3 relies on the following versions for each source:
+    Scenario V2 relies on the following versions for each source:
         * diffuse agriculture V2
         * atmospheric deposition V2
         * forestry V1
@@ -728,7 +728,7 @@ class ScenarioV3(Scenario):
     """
 
     def __init__(self, name, nutrient, sort_field, region, selection=None, overwrite=True):
-        """Initialisation of a ScenarioV3 object.
+        """Initialisation of a ScenarioV2 object.
 
         :Parameters:
 
@@ -785,8 +785,8 @@ class ScenarioV3(Scenario):
                     *Parameter example:*
                         ``overwrite=False``
         """
-        super(ScenarioV3, self).__init__(name, nutrient, overwrite)
-        self.__version__ = '3'
+        super(ScenarioV2, self).__init__(name, nutrient, overwrite)
+        self.__version__ = '2'
 
         self.sort_field = sort_field
         self.region = region
@@ -826,7 +826,7 @@ class ScenarioV3(Scenario):
         the existing outputs for a run from existing must be provided.
 
         The post-processing tool used will be:
-            * post-processing V4
+            * post-processing V2
 
         :Parameters:
 
@@ -1077,7 +1077,7 @@ class ScenarioV3(Scenario):
 
         # run geoprocessing functions for each source load
         (out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
-            out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v3_geoprocessing(
+            out_urban, out_ipc, out_sect4, out_dwts, out_agglo) = load_apportionment_v2_geoprocessing(
                 self.name, self.nutrient, location, in_lc_field,
                 in_arable, in_pasture, in_atm_depo, in_land_cover, in_factors,
                 in_ipc, in_sect4, in_dwts, in_agglo, in_treated_field, in_overflow_field,
@@ -1087,7 +1087,7 @@ class ScenarioV3(Scenario):
                 self._msg)
 
         # run geoprocessing functions for load apportionment
-        out_summary = load_apportionment_v3_stats_and_summary(
+        out_summary = load_apportionment_v2_stats_and_summary(
             self.name, self.nutrient, location, self.sort_field, out_gdb,
             out_arable, out_pasture, out_atm_depo, out_forest, out_peat,
             out_urban, out_ipc, out_sect4, out_dwts, out_agglo,
@@ -1110,7 +1110,7 @@ class ScenarioV3(Scenario):
         self._outputs['agglo'] = out_agglo
 
         # run postprocessing
-        postprocessing_v3_geoprocessing(self.name, self.nutrient, out_gdb, self._msg, out_summary=out_summary)
+        postprocessing_v2_geoprocessing(self.name, self.nutrient, out_gdb, self._msg, out_summary=out_summary)
 
         # collect areas and loads as pandas DataFrames
         self.areas = self._get_areas_dataframe(out_summary, self.sort_field, _area_header_arcmap)
@@ -1129,7 +1129,7 @@ class ScenarioV3(Scenario):
                         raise ValueError("The input '{}' does not exist for {}.".format(input_, category))
         else:
             # check if existing is provided by reusing a Scenario instance with a compatible version, if so, proceed
-            if isinstance(existing, ScenarioV3):
+            if isinstance(existing, ScenarioV2):
                 existing = existing._outputs[category]
                 if not arcpy.Exists(existing):
                     raise ValueError(
@@ -1137,7 +1137,7 @@ class ScenarioV3(Scenario):
             # check if existing is provided by reusing a Scenario instance with an incompatible version, if so, stop
             elif isinstance(existing, Scenario):
                 raise TypeError("The existing output given for {} is an instance of an incompatible version of "
-                                "Scenario (i.e. v{} instead of v3).".format(category, existing.__version__))
+                                "Scenario (i.e. v{} instead of v2).".format(category, existing.__version__))
             # check if existing is provided as a string (i.e. providing the direct path to data)
             elif isinstance(existing, str):
                 # check if existing data exists, if so, proceed, if not, stop

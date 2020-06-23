@@ -2,9 +2,9 @@ from os import path, sep
 import arcpy
 
 
-class PostProcessingV4(object):
+class PostProcessingV3(object):
     def __init__(self):
-        self.__version__ = '4'
+        self.__version__ = '3'
         self.category = 'Add-ons'
         self.label = 'Post-processing [v{}]'.format(self.__version__)
         self.description = "Post-processing tool to calculate various totals and sub-totals."
@@ -57,10 +57,10 @@ class PostProcessingV4(object):
         nutrient = 'N' if nutrient == 'Nitrogen (N)' else 'P'
 
         # run geoprocessing function
-        postprocessing_v4_geoprocessing(project_name, nutrient, out_gdb, messages)
+        postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages)
 
 
-def postprocessing_v4_geoprocessing(project_name, nutrient, out_gdb, messages,
+def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
                                     out_summary=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
@@ -214,9 +214,9 @@ def postprocessing_v4_geoprocessing(project_name, nutrient, out_gdb, messages,
                                     """)
 
 
-class PostProcessingV3(object):
+class PostProcessingV2(object):
     def __init__(self):
-        self.__version__ = '3'
+        self.__version__ = '2'
         self.category = 'Add-ons'
         self.label = 'Post-processing [v{}]'.format(self.__version__)
         self.description = "Post-processing tool to calculate various totals and sub-totals."
@@ -269,10 +269,10 @@ class PostProcessingV3(object):
         nutrient = 'N' if nutrient == 'Nitrogen (N)' else 'P'
 
         # run geoprocessing function
-        postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages)
+        postprocessing_v2_geoprocessing(project_name, nutrient, out_gdb, messages)
 
 
-def postprocessing_v3_geoprocessing(project_name, nutrient, out_gdb, messages,
+def postprocessing_v2_geoprocessing(project_name, nutrient, out_gdb, messages,
                                     out_summary=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]

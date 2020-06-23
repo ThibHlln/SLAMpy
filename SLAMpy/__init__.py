@@ -18,5 +18,5 @@ Framework Directive Measures, Biology and Environment, 116B(3), 245-263.
 doi:10.3318/bioe.2016.22, 2016.
 """
 
-from .scenario import Scenario, ScenarioV3, ScenarioV4
+from .scenario import Scenario, ScenarioV2, ScenarioV3
 from .scenariolist import ScenarioList
