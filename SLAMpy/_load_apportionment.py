@@ -262,7 +262,6 @@ class LoadApportionmentV3(object):
             parameterType="Required",
             direction="Input",
             category="Wastewater Data Settings")
-        in_uww_field.parameterDependencies = [in_agglo.name]
         in_uww_field.value = "T{}2016_Kgyr"
 
         ex_agglo = arcpy.Parameter(
@@ -742,8 +741,7 @@ class LoadApportionmentV2(object):
             parameterType="Required",
             direction="Input",
             category="Wastewater Data Settings")
-        in_treated_field.parameterDependencies = [in_agglo.name]
-        in_treated_field.value = "!PointT{}!"
+        in_treated_field.value = "PointT{}"
 
         in_overflow_field = arcpy.Parameter(
             displayName="Field for WWTP Storm Overflow (include {} where it should be replaced by N or P)",
@@ -752,8 +750,7 @@ class LoadApportionmentV2(object):
             parameterType="Required",
             direction="Input",
             category="Wastewater Data Settings")
-        in_overflow_field.parameterDependencies = [in_agglo.name]
-        in_overflow_field.value = "!T{}_SWO!"
+        in_overflow_field.value = "T{}_SWO"
 
         ex_agglo = arcpy.Parameter(
             displayName="Existing output for WWTPs to use as a substitute to the tool",
