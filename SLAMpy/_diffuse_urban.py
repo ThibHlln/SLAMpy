@@ -71,15 +71,15 @@ class DiffuseUrbanV1(object):
             category="Urban Data Settings")
         in_urban.value = sep.join([in_gdb, 'clc12_IE'])
 
-        in_field = arcpy.Parameter(
+        in_lc_field = arcpy.Parameter(
             displayName="Field for Land Cover Code",
-            name="in_field",
+            name="in_lc_field",
             datatype="Field",
             parameterType="Required",
             direction="Input",
             category="Urban Data Settings")
-        in_field.parameterDependencies = [in_urban.name]
-        in_field.value = "CODE_12"
+        in_lc_field.parameterDependencies = [in_urban.name]
+        in_lc_field.value = "CODE_12"
 
         in_factors_n = arcpy.Parameter(
             displayName="Land Cover Factors for Nitrogen (N)",
@@ -101,11 +101,11 @@ class DiffuseUrbanV1(object):
 
         return [out_gdb,
                 project_name, nutrient, region, selection,
-                in_urban, in_field, in_factors_n, in_factors_p]
+                in_urban, in_lc_field, in_factors_n, in_factors_p]
 
     def execute(self, parameters, messages):
         # retrieve parameters
-        out_gdb, project_name, nutrient, region, selection, in_urban, in_field, in_factors_n, in_factors_p = \
+        out_gdb, project_name, nutrient, region, selection, in_urban, in_lc_field, in_factors_n, in_factors_p = \
             [p.valueAsText for p in parameters]
 
         # determine which nutrient to work on
@@ -123,14 +123,14 @@ class DiffuseUrbanV1(object):
         in_factors = in_factors_n if nutrient == 'N' else in_factors_p
 
         # run geoprocessing function
-        urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_field, in_factors, out_gdb, messages)
+        urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_lc_field, in_factors, out_gdb, messages)
 
         # garbage collection
         if selection:
             arcpy.Delete_management(location)
 
 
-def urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_field, in_factors, out_gdb, messages,
+def urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_lc_field, in_factors, out_gdb, messages,
                            out_urban=None):
     """
     :param project_name: name of the project that will be used to identify the outputs in the geodatabase [required]
@@ -141,8 +141,8 @@ def urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_field,
     :type location: str
     :param in_urban: path of the input feature class of the land cover data [required]
     :type in_urban: str
-    :param in_field: name of the field in in_urban to use for the land cover type [required]
-    :type in_field: str
+    :param in_lc_field: name of the field in in_urban to use for the land cover type [required]
+    :type in_lc_field: str
     :param in_factors: path of the input table of the export factors for land cover types [required]
     :type in_factors: str
     :param out_gdb: path of the geodatabase where to store the output feature classes [required]
@@ -158,7 +158,7 @@ def urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_field,
     arcpy.MakeFeatureLayer_management(in_features=in_urban, out_layer='lyrUrban')
     arcpy.SelectLayerByAttribute_management(in_layer_or_view='lyrUrban',
                                             selection_type="NEW_SELECTION",
-                                            where_clause="{} LIKE '1%'".format(in_field))
+                                            where_clause="{} LIKE '1%'".format(in_lc_field))
 
     if not out_urban:
         out_urban = sep.join([out_gdb, project_name + '_{}_Urban'.format(nutrient)])
@@ -191,7 +191,7 @@ def urban_v1_geoprocessing(project_name, nutrient, location, in_urban, in_field,
     arcpy.AddField_management(in_table=out_urban, field_name="Urb1calc", field_type="DOUBLE",
                               field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED")
     arcpy.CalculateField_management(in_table=out_urban, field="Urb1calc",
-                                    expression="factor(!{}!, float(!Area_ha!))".format(in_field),
+                                    expression="factor(!{}!, float(!Area_ha!))".format(in_lc_field),
                                     expression_type="PYTHON_9.3",
                                     code_block=
                                     """def factor(code, area):
