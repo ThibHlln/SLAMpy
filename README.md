@@ -9,6 +9,9 @@ SLAMpy is the implementation of SLAM in Python. SLAMpy can both be used as an Ar
 
 *Disclaimer:* SLAM makes use of national datasets available for Ireland and, therefore, it is only readily applicable to an Irish context.
 
+### Documentation
+A tutorial in the form of a [Jupyter notebook](docs/tutorial_api.ipynb) is available to get started with the usage of SLAMpy's Python API. All the technical details are provided in the [Technical Document](docs/SLAM_Technical_Document_v3.0.pdf).
+
 ### References
 Mockler, E.M., Deakin, J., Archbold, M., Daly, D., Bruen, M.: Nutrient Load Apportionment to Support the Identification of Appropriate Water Framework Directive Measures, *Biology and Environment*, 116B(3), 245-263. [doi:10.3318/bioe.2016.22](https://www.jstor.org/stable/10.3318/bioe.2016.22), 2016.
 
